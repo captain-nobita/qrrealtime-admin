@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<configuration>
+ 
+    <property name="LOGS" value="../log/ach-reportoffline" />
+ 
+    <appender name="Console"
+              class="ch.qos.logback.core.ConsoleAppender">
+        <layout class="ch.qos.logback.classic.PatternLayout">
+            <Pattern>
+                <!--%d{dd-MM-yyyy HH:mm:ss.SSS} %highlight(%-5level) %logger{36}.%M - %msg%n-->
+                %highlight[%-5level] - [%d{dd-MM-yyyy HH:mm:ss.SSS}] %logger{16}.%M:%L - %m%n
+            </Pattern>
+        </layout>
+    </appender>
+ 
+    <appender name="RollingFile"
+              class="ch.qos.logback.core.rolling.RollingFileAppender">
+        <file>${LOGS}/app.log</file>
+        <encoder
+            class="ch.qos.logback.classic.encoder.PatternLayoutEncoder">
+            <Pattern>%highlight[%-5level] - [%d{dd-MM-yyyy HH:mm:ss.SSS}] %logger{16}.%M:%L - %m%n</Pattern>
+        </encoder>
+ 
+        <rollingPolicy
+            class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
+            <!-- rollover daily and when the file reaches 10 MegaBytes -->
+            <fileNamePattern>${LOGS}/app.log.%d{yyyyMMdd}
+            </fileNamePattern>
+            <maxHistory>180</maxHistory>
+            <totalSizeCap>2GB</totalSizeCap>
+        </rollingPolicy>
+    </appender>
+     
+    <appender name="ASYNC" class="ch.qos.logback.classic.AsyncAppender">
+        <appender-ref ref="RollingFile" />
+        <includeCallerData>true</includeCallerData>
+    </appender>
+    
+    <!-- LOG everything at INFO level -->
+    <root level="info">
+        <appender-ref ref="ASYNC" />
+        <appender-ref ref="Console" />
+    </root>
+</configuration>

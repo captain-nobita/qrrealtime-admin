@@ -1,0 +1,52 @@
+#Khai báo các báo cáo offline
+#Đây là dạng khai báo mảng của yaml
+#Mỗi phần tử trong mảng thể hiện cấu hình của một báo cáo offline
+#Khi đã khai báo một báo cáo ở đây (và trường enabled = true), thì báo cáo này sẽ hiện ra trong danh sách chọn xuất báo cáo offline
+# trên giao diện web
+-
+  #Mã định danh báo cáo, định danh này là duy nhất cho mỗi báo cáo
+
+  reportCode: RO_01
+
+  #Có cho phép báo cáo này hiện ra trong danh sách chọn xuất báo cáo không
+  enabled: true
+
+  #Đường dẫn đến file template jasper của báo cáo
+  jasperFile: jasperreport/BC01.jasper
+
+  #Tên của báo cáo, tên này sẽ hiện ra trong danh sách chọn báo cáo trên giao diện
+  name: BC.01 - BÁO CÁO QUYẾT TOÁN BỔ SUNG NGOÀI GIAO DỊCH
+
+  #Hàm lấy dữ liệu để fill vào jasper template
+  #Số lượng parameters (đại diện bằng dấu ?) của hàm phải bằng số lượng các param có giá trị true ở mục parameters
+  functionName: F_GET_GD(?, ?, ?, ?, ?, ?, ?,?,?,?,?)
+
+  #Định nghĩa các parameter tương ứng với báo cáo này
+  #Các param có giá trị true thì sẽ xuất hiện trên giao diện để cho người dùng chọn
+  parameters:
+    #Thời gian từ
+    DATE_BEGIN: true
+    #Thời gian đến
+    DATE_END: true
+    #Lấy từ session id
+    DEPTID: true
+
+    #Lấy đến session id
+    MERCHANTID: true
+
+    #Mã BIC của TCTV
+    MGSTYPE: true
+
+    #Bank operacode của giao dịch
+    TRANS_TYPE: true
+
+    #Trans Type Code của giao dịch
+    STATUS: true
+
+    SERVICECODE: true
+
+    RESPONSECODE: true
+
+    AMOUNTTO: true
+
+    AMOUNTFROM: true
