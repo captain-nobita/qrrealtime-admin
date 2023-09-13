@@ -40,7 +40,6 @@ export/
 
 config/application.yaml
 config/ssl/
-src/main/resources/keystore/achbackend.p12
 /mvnw
 /mvnw.cmd
 /.mvn
