@@ -71,6 +71,12 @@
             <artifactId>guava</artifactId>
             <version>31.0.1-jre</version>
         </dependency>
+        <dependency>
+            <groupId>org.projectlombok</groupId>
+            <artifactId>lombok</artifactId>
+            <version>1.18.24</version>
+            <scope>provided</scope>
+        </dependency>
     </dependencies>
     <build>
         <finalName>${project.artifactId}</finalName>
@@ -85,7 +91,7 @@
                             <classpathPrefix>lib/</classpathPrefix>
                             <mainClass>com.napas.qr.QRMerchantRealTimeApplication
                             </mainClass>
-                            <packageName>com.napas.achoffline.reportoffline</packageName>
+                            <packageName>com.napas.qr.qrrealtime</packageName>
                             <addDefaultImplementationEntries>true</addDefaultImplementationEntries>
                         </manifest>
                     </archive>
