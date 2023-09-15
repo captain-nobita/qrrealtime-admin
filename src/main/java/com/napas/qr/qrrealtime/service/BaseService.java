@@ -19,4 +19,10 @@ public class BaseService {
         Optional<TblOrgUser> opt = userRepository.findByUsername(principal.getName());
         return opt.get().getId();
     }
+
+    public long getTargetId(){
+        Principal principal = (Principal) SecurityContextHolder.getContext().getAuthentication();
+        Optional<TblOrgUser> opt = userRepository.findByUsername(principal.getName());
+        return opt.get().getTargetId();
+    }
 }

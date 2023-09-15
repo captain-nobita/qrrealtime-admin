@@ -25,7 +25,7 @@ public class SettleBankService {
     }
 
     public List<SettleBankDTO> get(){
-        List<TblSettleBank> settleBanks = settleBankRepository.findAll();
-        return settleBanks.stream().map(entity -> fromEntity(entity)).collect(Collectors.toList());
+        List<SettleBankDTO> settleBanks = settleBankRepository.listBank();
+        return settleBanks;
     }
 }

@@ -3,6 +3,7 @@ package com.napas.qr.qrrealtime.service;
 import com.napas.qr.qrrealtime.define.MerchantStatus;
 import com.napas.qr.qrrealtime.define.PaymentAcceptStatus;
 import com.napas.qr.qrrealtime.entity.TblMerchantPersonal;
+import com.napas.qr.qrrealtime.entity.TblOrgUser;
 import com.napas.qr.qrrealtime.models.CreateMerchantPersonalDTO;
 import com.napas.qr.qrrealtime.models.TblMerchantPersonalDTO;
 import com.napas.qr.qrrealtime.payload.response.MessageResponse;
@@ -39,7 +40,8 @@ public class MerchantPersonalService extends BaseService {
 
     public ResponseEntity<?>post(CreateMerchantPersonalDTO input){
         TblMerchantPersonal tblMerchantPersonal = new TblMerchantPersonal();
-        tblMerchantPersonal.setMmId(input.getMmId());
+
+        tblMerchantPersonal.setMmId(getTargetId());
         tblMerchantPersonal.setName(input.getName());
         if (merchantPersonalRepository.existsByMerchantCode(input.getMerchantCode())) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(new MessageResponse("MerchantCode đã tồn tại"));
