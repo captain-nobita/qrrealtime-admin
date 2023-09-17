@@ -1,12 +1,16 @@
 package com.napas.qr.qrrealtime.models;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
 import com.napas.qr.qrrealtime.define.MerchantStatus;
+import com.napas.qr.qrrealtime.entity.TblDistrict;
 import lombok.Data;
 
 import java.util.Date;
 
 @Data
 public class TblMerchantCorporateDTO {
+
+    private Long id;
 
     private String name;
 
@@ -16,7 +20,10 @@ public class TblMerchantCorporateDTO {
 
     private MerchantStatus status;
 
+    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd HH:mm:ss", timezone = "Asia/Ho_Chi_Minh")
     private Date dateCreated;
+
+    private Long districtId;
 
     public String getName() {
         return name;

@@ -3,22 +3,14 @@ package com.napas.qr.qrrealtime.entity;/*
  * Click nbfs://nbhost/SystemFileSystem/Templates/Classes/Class.java to edit this template
  */
 
+import com.napas.qr.qrrealtime.define.EBranchAccountSettledType;
+import com.napas.qr.qrrealtime.define.MerchantStatus;
+import com.napas.qr.qrrealtime.define.PaymentAcceptStatus;
+
 import java.io.Serializable;
 import java.util.Collection;
 import java.util.Date;
-import javax.persistence.Basic;
-import javax.persistence.CascadeType;
-import javax.persistence.Column;
-import javax.persistence.Entity;
-import javax.persistence.Id;
-import javax.persistence.JoinColumn;
-import javax.persistence.ManyToOne;
-import javax.persistence.NamedQueries;
-import javax.persistence.NamedQuery;
-import javax.persistence.OneToMany;
-import javax.persistence.Table;
-import javax.persistence.Temporal;
-import javax.persistence.TemporalType;
+import javax.persistence.*;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
 
@@ -34,6 +26,8 @@ public class TblMerchantCorporate implements Serializable {
 
     private static final long serialVersionUID = 1L;
     @Id
+    @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "SEQ_TBL_MERCHANT_CORPORATE")
+    @SequenceGenerator(sequenceName = "SEQ_TBL_MERCHANT_CORPORATE", allocationSize = 1, name = "SEQ_TBL_MERCHANT_CORPORATE")
     @Basic(optional = false)
     @NotNull
     @Column(name = "ID")
@@ -43,11 +37,13 @@ public class TblMerchantCorporate implements Serializable {
     @Size(min = 1, max = 3)
     @Column(name = "MERCHANT_CODE")
     private String merchantCode;
+
     @Basic(optional = false)
+    @Enumerated(EnumType.STRING)
     @NotNull
-    @Size(min = 1, max = 20)
     @Column(name = "STATUS")
-    private String status;
+    private MerchantStatus status;
+
     @Basic(optional = false)
     @NotNull
     @Size(min = 1, max = 500)
@@ -73,17 +69,22 @@ public class TblMerchantCorporate implements Serializable {
     private long createdByUser;
     @Column(name = "MODIFIED_BY_USER")
     private Long modifiedByUser;
+
     @Basic(optional = false)
     @NotNull
-    @Size(min = 1, max = 20)
+    @Enumerated(EnumType.STRING)
     @Column(name = "BRANCH_ACCOUNT_SETTLED_TYPE")
-    private String branchAccountSettledType;
+    private EBranchAccountSettledType branchAccountSettledType;
+
     @Size(max = 30)
     @Column(name = "CREDITOR_ACCOUNT")
     private String creditorAccount;
-    @Size(max = 20)
+
+
+    @Enumerated(EnumType.STRING)
     @Column(name = "PAYMENT_ACCEPTANCE_STATUS")
-    private String paymentAcceptanceStatus;
+    private PaymentAcceptStatus paymentAcceptanceStatus;
+
     @OneToMany(cascade = CascadeType.ALL, mappedBy = "tblMerchantCorporate")
     private Collection<TblMerchantBranch> tblMerchantBranchCollection;
     @JoinColumn(name = "DISTRICT_ID", referencedColumnName = "ID")
@@ -103,7 +104,7 @@ public class TblMerchantCorporate implements Serializable {
         this.id = id;
     }
 
-    public TblMerchantCorporate(Long id, String merchantCode, String status, String name, Date dateCreated, long createdByUser, String branchAccountSettledType) {
+    public TblMerchantCorporate(Long id, String merchantCode, MerchantStatus status, String name, Date dateCreated, long createdByUser, EBranchAccountSettledType branchAccountSettledType) {
         this.id = id;
         this.merchantCode = merchantCode;
         this.status = status;
@@ -129,11 +130,11 @@ public class TblMerchantCorporate implements Serializable {
         this.merchantCode = merchantCode;
     }
 
-    public String getStatus() {
+    public MerchantStatus getStatus() {
         return status;
     }
 
-    public void setStatus(String status) {
+    public void setStatus(MerchantStatus status) {
         this.status = status;
     }
 
@@ -193,11 +194,11 @@ public class TblMerchantCorporate implements Serializable {
         this.modifiedByUser = modifiedByUser;
     }
 
-    public String getBranchAccountSettledType() {
+    public EBranchAccountSettledType getBranchAccountSettledType() {
         return branchAccountSettledType;
     }
 
-    public void setBranchAccountSettledType(String branchAccountSettledType) {
+    public void setBranchAccountSettledType(EBranchAccountSettledType branchAccountSettledType) {
         this.branchAccountSettledType = branchAccountSettledType;
     }
 
@@ -209,11 +210,11 @@ public class TblMerchantCorporate implements Serializable {
         this.creditorAccount = creditorAccount;
     }
 
-    public String getPaymentAcceptanceStatus() {
+    public PaymentAcceptStatus getPaymentAcceptanceStatus() {
         return paymentAcceptanceStatus;
     }
 
-    public void setPaymentAcceptanceStatus(String paymentAcceptanceStatus) {
+    public void setPaymentAcceptanceStatus(PaymentAcceptStatus paymentAcceptanceStatus) {
         this.paymentAcceptanceStatus = paymentAcceptanceStatus;
     }
 
@@ -269,9 +270,4 @@ public class TblMerchantCorporate implements Serializable {
         return true;
     }
 
-    @Override
-    public String toString() {
-        return "com.napas.achoffline.reportoffline.entity.TblMerchantCorporate[ id=" + id + " ]";
-    }
-    
 }

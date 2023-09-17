@@ -122,9 +122,5 @@ public class TblProvince implements Serializable {
         return true;
     }
 
-    @Override
-    public String toString() {
-        return "com.napas.achoffline.reportoffline.entity.TblProvince[ id=" + id + " ]";
-    }
     
 }

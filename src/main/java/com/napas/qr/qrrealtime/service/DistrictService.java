@@ -1,8 +1,10 @@
 package com.napas.qr.qrrealtime.service;
 
 import com.napas.qr.qrrealtime.entity.TblDistrict;
+import com.napas.qr.qrrealtime.entity.TblProvince;
 import com.napas.qr.qrrealtime.models.DistrictDTO;
 import com.napas.qr.qrrealtime.repository.DistrictRepository;
+import com.napas.qr.qrrealtime.repository.ProviceRepository;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -17,6 +19,9 @@ public class DistrictService {
     private DistrictRepository districtRepository;
 
     @Autowired
+    private ProviceRepository proviceRepository;
+
+    @Autowired
     private ModelMapper mapper;
 
 
@@ -25,8 +30,9 @@ public class DistrictService {
         return dto;
     }
 
-//    public List<DistrictDTO> get(Long provId){
-//        List<TblDistrict> district = districtRepository.findByProvId(provId);
-//        return district.stream().map(entity -> fromEntity(entity)).collect(Collectors.toList());
-//    }
+    public List<DistrictDTO> get(Long provId){
+        TblProvince province = proviceRepository.findById(provId).orElse(null);
+        List<TblDistrict> district = districtRepository.findByTblProvince(province);
+        return district.stream().map(entity -> fromEntity(entity)).collect(Collectors.toList());
+    }
 }

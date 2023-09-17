@@ -11,11 +11,13 @@ import org.springframework.stereotype.Repository;
 
 @Repository
 public interface MerchantCorporateRepository extends JpaRepository<TblMerchantCorporate,Long> {
+    Boolean existsByMerchantCode(String merchantCode);
 
     @Query("SELECT T FROM TblMerchantCorporate T WHERE " +
             " (T.name = :name or :name is null) " +
             " AND (T.status=:status or :status is null) " +
-            " AND(T.merchantCode=:merchantCode or :merchantCode is null) ")
+            " AND(T.merchantCode=:merchantCode or :merchantCode is null)" +
+            " AND(T.status<>'DELETED') ")
     Page<TblMerchantCorporate>search(Pageable pageable,
                                         @Param("name") String name,
                                         @Param("status") MerchantStatus status,

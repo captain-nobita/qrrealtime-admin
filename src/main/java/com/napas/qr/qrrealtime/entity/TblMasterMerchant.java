@@ -33,7 +33,7 @@ public class TblMasterMerchant implements Serializable {
     @Basic(optional = false)
     @NotNull
     @Column(name = "ID")
-    private Integer id;
+    private Long id;
     @Basic(optional = false)
     @NotNull
     @Size(min = 1, max = 2)
@@ -74,11 +74,11 @@ public class TblMasterMerchant implements Serializable {
     public TblMasterMerchant() {
     }
 
-    public TblMasterMerchant(Integer id) {
+    public TblMasterMerchant(Long id) {
         this.id = id;
     }
 
-    public TblMasterMerchant(Integer id, String mmCode, String status, String mmName, LocalDateTime dateCreated, long createdByUser, String viewMerchantPayment) {
+    public TblMasterMerchant(Long id, String mmCode, String status, String mmName, LocalDateTime dateCreated, long createdByUser, String viewMerchantPayment) {
         this.id = id;
         this.mmCode = mmCode;
         this.status = status;
@@ -88,11 +88,11 @@ public class TblMasterMerchant implements Serializable {
         this.viewMerchantPayment = viewMerchantPayment;
     }
 
-    public Integer getId() {
+    public Long getId() {
         return id;
     }
 
-    public void setId(Integer id) {
+    public void setId(Long id) {
         this.id = id;
     }
 
@@ -196,9 +196,4 @@ public class TblMasterMerchant implements Serializable {
         return true;
     }
 
-    @Override
-    public String toString() {
-        return "com.napas.achoffline.reportoffline.entity.TblMasterMerchant[ id=" + id + " ]";
-    }
-    
 }

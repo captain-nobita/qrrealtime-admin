@@ -8,17 +8,7 @@ import com.napas.qr.qrrealtime.define.PaymentAcceptStatus;
 
 import java.io.Serializable;
 import java.util.Date;
-import javax.persistence.Basic;
-import javax.persistence.Column;
-import javax.persistence.Entity;
-import javax.persistence.Id;
-import javax.persistence.JoinColumn;
-import javax.persistence.ManyToOne;
-import javax.persistence.NamedQueries;
-import javax.persistence.NamedQuery;
-import javax.persistence.Table;
-import javax.persistence.Temporal;
-import javax.persistence.TemporalType;
+import javax.persistence.*;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
 
@@ -34,10 +24,13 @@ public class TblMerchantPersonal implements Serializable {
 
     private static final long serialVersionUID = 1L;
     @Id
+    @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "SEQ_TBL_MERCHANT_PERSONAL")
+    @SequenceGenerator(sequenceName = "SEQ_TBL_MERCHANT_PERSONAL", allocationSize = 1, name = "SEQ_TBL_MERCHANT_PERSONAL")
     @Basic(optional = false)
     @NotNull
     @Column(name = "ID")
     private Long id;
+
     @Basic(optional = false)
     @NotNull
     @Size(min = 1, max = 5)
@@ -45,9 +38,10 @@ public class TblMerchantPersonal implements Serializable {
     private String merchantCode;
     @Basic(optional = false)
     @NotNull
-    @Size(min = 1, max = 20)
+    @Enumerated(EnumType.STRING)
     @Column(name = "STATUS")
     private MerchantStatus status;
+
     @Basic(optional = false)
     @NotNull
     @Size(min = 1, max = 500)
@@ -80,7 +74,7 @@ public class TblMerchantPersonal implements Serializable {
     private String creditorAccount;
     @Basic(optional = false)
     @NotNull
-    @Size(min = 1, max = 20)
+    @Enumerated(EnumType.STRING)
     @Column(name = "PAYMENT_ACCEPTANCE_STATUS")
     private PaymentAcceptStatus paymentAcceptanceStatus;
 

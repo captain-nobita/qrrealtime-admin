@@ -1,6 +1,7 @@
 package com.napas.qr.qrrealtime.controllers;
 
 import com.napas.qr.qrrealtime.define.MerchantStatus;
+import com.napas.qr.qrrealtime.models.CreatedMerchantCorporateDTO;
 import com.napas.qr.qrrealtime.service.MerchantCorporateService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -32,5 +33,22 @@ public class MerchantCorporateController {
     ) {
         return merchantCorporateService.search(paging,name, status, merchantCode);
     }
+    @PostMapping()
+    public ResponseEntity<?>post(@RequestBody CreatedMerchantCorporateDTO input){
+        return merchantCorporateService.post(input);
+    }
 
+    @PutMapping("/{id}")
+    public ResponseEntity<?> put(HttpServletRequest request,@PathVariable Long id, @RequestBody CreatedMerchantCorporateDTO input){
+        return merchantCorporateService.put(id, input);
+    }
+    @DeleteMapping("/{id}")
+    public ResponseEntity<?> delete(HttpServletRequest request,@PathVariable Long id) {
+        return merchantCorporateService.delete(id);
+    }
+
+    @GetMapping("/detail/{id}")
+    public ResponseEntity<?>merchantDetail(HttpServletRequest request,@PathVariable Long id){
+        return merchantCorporateService.merchantDetail(id);
+    }
 }

@@ -1,24 +1,15 @@
 package com.napas.qr.qrrealtime.models;
 
-
-import com.napas.qr.qrrealtime.define.MerchantStatus;
 import com.napas.qr.qrrealtime.define.PaymentAcceptStatus;
 import lombok.Data;
 
 import java.util.Date;
 
 @Data
-public class TblMerchantPersonalDTO {
-
-    private Long id;
-
+public class MerchantPersonalDetail {
     private String merchantCode;
 
-    private Long mmId;
-
     private String name;
-
-    private MerchantStatus status;
 
     private String phoneNumber;
 
@@ -43,10 +34,4 @@ public class TblMerchantPersonalDTO {
     private String ownerName;
 
     private String emailAddress;
-
-    private Long provId;
-
-    private String provName;
-
-    private String DistrictName;
 }

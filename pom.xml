@@ -89,7 +89,7 @@
                         <manifest>
                             <addClasspath>true</addClasspath>
                             <classpathPrefix>lib/</classpathPrefix>
-                            <mainClass>com.napas.qr.QRMerchantRealTimeApplication
+                            <mainClass>com.napas.qr.qrrealtime.QRMerchantRealTimeApplication
                             </mainClass>
                             <packageName>com.napas.qr.qrrealtime</packageName>
                             <addDefaultImplementationEntries>true</addDefaultImplementationEntries>

@@ -54,7 +54,7 @@ public class MerchantPersonalController {
     }
 
     @GetMapping("/detail/{id}")
-    public ResponseEntity<?>merchantDetail(HttpServletRequest request,@PathVariable Long id){
+    public ResponseEntity<?>merchantDetail(@PathVariable Long id){
         return merchantPersonalService.merchantDetail(id);
     }
 }

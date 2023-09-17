@@ -2,20 +2,13 @@ package com.napas.qr.qrrealtime.entity;/*
  * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
  * Click nbfs://nbhost/SystemFileSystem/Templates/Classes/Class.java to edit this template
  */
+import com.napas.qr.qrrealtime.define.MerchantStatus;
+import com.napas.qr.qrrealtime.define.PaymentAcceptStatus;
+
 import java.io.Serializable;
 import java.time.LocalDateTime;
 import java.util.Collection;
-import javax.persistence.Basic;
-import javax.persistence.CascadeType;
-import javax.persistence.Column;
-import javax.persistence.Entity;
-import javax.persistence.Id;
-import javax.persistence.JoinColumn;
-import javax.persistence.ManyToOne;
-import javax.persistence.NamedQueries;
-import javax.persistence.NamedQuery;
-import javax.persistence.OneToMany;
-import javax.persistence.Table;
+import javax.persistence.*;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
 
@@ -31,6 +24,8 @@ public class TblMerchantBranch implements Serializable {
 
     private static final long serialVersionUID = 1L;
     @Id
+    @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "SEQ_TBL_MERCHANT_BRANCH")
+    @SequenceGenerator(sequenceName = "SEQ_TBL_MERCHANT_BRANCH", allocationSize = 1, name = "SEQ_TBL_MERCHANT_BRANCH")
     @Basic(optional = false)
     @NotNull
     @Column(name = "ID")
@@ -40,17 +35,20 @@ public class TblMerchantBranch implements Serializable {
     @Size(min = 1, max = 3)
     @Column(name = "BRANCH_CODE")
     private String branchCode;
+
     @Basic(optional = false)
     @NotNull
-    @Size(min = 1, max = 20)
+    @Enumerated(EnumType.STRING)
     @Column(name = "STATUS")
-    private String status;
+    private MerchantStatus status;
+
     @Basic(optional = false)
     @NotNull
     @Column(name = "DATE_CREATED")
     private LocalDateTime dateCreated;
     @Column(name = "DATE_MODIFIED")
     private LocalDateTime dateModified;
+
     @Basic(optional = false)
     @NotNull
     @Column(name = "CREATED_BY_USER")
@@ -67,9 +65,12 @@ public class TblMerchantBranch implements Serializable {
     @Size(min = 1, max = 500)
     @Column(name = "BRANCH_NAME")
     private String branchName;
-    @Size(max = 20)
+
+
+    @Enumerated(EnumType.STRING)
     @Column(name = "PAYMENT_ACCEPTANCE_STATUS")
-    private String paymentAcceptanceStatus;
+    private PaymentAcceptStatus paymentAcceptanceStatus;
+
     @OneToMany(cascade = CascadeType.ALL, mappedBy = "tblMerchantBranch")
     private Collection<TblMerchantCashier> tblMerchantCashierCollection;
     @JoinColumn(name = "MERCHANT_ID", referencedColumnName = "ID")
@@ -83,7 +84,7 @@ public class TblMerchantBranch implements Serializable {
         this.id = id;
     }
 
-    public TblMerchantBranch(Long id, String branchCode, String status, LocalDateTime dateCreated, long createdByUser, String branchName) {
+    public TblMerchantBranch(Long id, String branchCode, MerchantStatus status, LocalDateTime dateCreated, long createdByUser, String branchName) {
         this.id = id;
         this.branchCode = branchCode;
         this.status = status;
@@ -108,11 +109,11 @@ public class TblMerchantBranch implements Serializable {
         this.branchCode = branchCode;
     }
 
-    public String getStatus() {
+    public MerchantStatus getStatus() {
         return status;
     }
 
-    public void setStatus(String status) {
+    public void setStatus(MerchantStatus status) {
         this.status = status;
     }
 
@@ -172,11 +173,11 @@ public class TblMerchantBranch implements Serializable {
         this.branchName = branchName;
     }
 
-    public String getPaymentAcceptanceStatus() {
+    public PaymentAcceptStatus getPaymentAcceptanceStatus() {
         return paymentAcceptanceStatus;
     }
 
-    public void setPaymentAcceptanceStatus(String paymentAcceptanceStatus) {
+    public void setPaymentAcceptanceStatus(PaymentAcceptStatus paymentAcceptanceStatus) {
         this.paymentAcceptanceStatus = paymentAcceptanceStatus;
     }
 
@@ -216,9 +217,4 @@ public class TblMerchantBranch implements Serializable {
         return true;
     }
 
-    @Override
-    public String toString() {
-        return "com.napas.achoffline.reportoffline.entity.TblMerchantBranch[ id=" + id + " ]";
-    }
-    
 }
