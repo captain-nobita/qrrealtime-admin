@@ -11,6 +11,8 @@ import javax.persistence.CascadeType;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.Id;
+import javax.persistence.JoinColumn;
+import javax.persistence.ManyToOne;
 import javax.persistence.NamedQueries;
 import javax.persistence.NamedQuery;
 import javax.persistence.OneToMany;
@@ -25,10 +27,10 @@ import javax.validation.constraints.Size;
  * @author phucdv
  */
 @Entity
-@Table(name = "TBL_SETTLE_BANK")
+@Table(name = "TBL_DISTRICT")
 @NamedQueries({
-    @NamedQuery(name = "TblSettleBank.findAll", query = "SELECT t FROM TblSettleBank t")})
-public class TblSettleBank implements Serializable {
+    @NamedQuery(name = "TblDistrict.findAll", query = "SELECT t FROM TblDistrict t")})
+public class TblDistrict implements Serializable {
 
     private static final long serialVersionUID = 1L;
     @Id
@@ -38,52 +40,33 @@ public class TblSettleBank implements Serializable {
     private Long id;
     @Basic(optional = false)
     @NotNull
-    @Size(min = 1, max = 20)
-    @Column(name = "BANK_ID")
-    private String bankId;
-    @Basic(optional = false)
-    @NotNull
-    @Size(min = 1, max = 2)
-    @Column(name = "BANK_RECEIVE_CODE")
-    private String bankReceiveCode;
-    @Basic(optional = false)
-    @NotNull
-    @Size(min = 1, max = 20)
-    @Column(name = "STATUS")
-    private String status;
-    @Basic(optional = false)
-    @NotNull
+    @Size(min = 1, max = 200)
+    @Column(name = "DISTRICT_NAME")
+    private String districtName;
     @Column(name = "DATE_CREATED")
     @Temporal(TemporalType.TIMESTAMP)
     private Date dateCreated;
     @Column(name = "DATE_MODIFIED")
     @Temporal(TemporalType.TIMESTAMP)
     private Date dateModified;
-    @Basic(optional = false)
-    @NotNull
-    @Column(name = "CREATED_BY_USER")
-    private long createdByUser;
-    @Column(name = "MODIFIED_BY_USER")
-    private Long modifiedByUser;
-    @OneToMany(mappedBy = "tblSettleBank")
+    @OneToMany(cascade = CascadeType.ALL, mappedBy = "tblDistrict")
     private Collection<TblMerchantCorporate> tblMerchantCorporateCollection;
-    @OneToMany(cascade = CascadeType.ALL, mappedBy = "tblSettleBank")
+    @OneToMany(cascade = CascadeType.ALL, mappedBy = "tblDistrict")
     private Collection<TblMerchantPersonal> tblMerchantPersonalCollection;
+    @JoinColumn(name = "PROV_ID", referencedColumnName = "ID")
+    @ManyToOne(optional = false)
+    private TblProvince tblProvince;
 
-    public TblSettleBank() {
+    public TblDistrict() {
     }
 
-    public TblSettleBank(Long id) {
+    public TblDistrict(Long id) {
         this.id = id;
     }
 
-    public TblSettleBank(Long id, String bankId, String bankReceiveCode, String status, Date dateCreated, long createdByUser) {
+    public TblDistrict(Long id, String districtName) {
         this.id = id;
-        this.bankId = bankId;
-        this.bankReceiveCode = bankReceiveCode;
-        this.status = status;
-        this.dateCreated = dateCreated;
-        this.createdByUser = createdByUser;
+        this.districtName = districtName;
     }
 
     public Long getId() {
@@ -94,28 +77,12 @@ public class TblSettleBank implements Serializable {
         this.id = id;
     }
 
-    public String getBankId() {
-        return bankId;
+    public String getDistrictName() {
+        return districtName;
     }
 
-    public void setBankId(String bankId) {
-        this.bankId = bankId;
-    }
-
-    public String getBankReceiveCode() {
-        return bankReceiveCode;
-    }
-
-    public void setBankReceiveCode(String bankReceiveCode) {
-        this.bankReceiveCode = bankReceiveCode;
-    }
-
-    public String getStatus() {
-        return status;
-    }
-
-    public void setStatus(String status) {
-        this.status = status;
+    public void setDistrictName(String districtName) {
+        this.districtName = districtName;
     }
 
     public Date getDateCreated() {
@@ -134,22 +101,6 @@ public class TblSettleBank implements Serializable {
         this.dateModified = dateModified;
     }
 
-    public long getCreatedByUser() {
-        return createdByUser;
-    }
-
-    public void setCreatedByUser(long createdByUser) {
-        this.createdByUser = createdByUser;
-    }
-
-    public Long getModifiedByUser() {
-        return modifiedByUser;
-    }
-
-    public void setModifiedByUser(Long modifiedByUser) {
-        this.modifiedByUser = modifiedByUser;
-    }
-
     public Collection<TblMerchantCorporate> getTblMerchantCorporateCollection() {
         return tblMerchantCorporateCollection;
     }
@@ -166,6 +117,14 @@ public class TblSettleBank implements Serializable {
         this.tblMerchantPersonalCollection = tblMerchantPersonalCollection;
     }
 
+    public TblProvince getTblProvince() {
+        return tblProvince;
+    }
+
+    public void setTblProvince(TblProvince tblProvince) {
+        this.tblProvince = tblProvince;
+    }
+
     @Override
     public int hashCode() {
         int hash = 0;
@@ -176,19 +135,14 @@ public class TblSettleBank implements Serializable {
     @Override
     public boolean equals(Object object) {
         // TODO: Warning - this method won't work in the case the id fields are not set
-        if (!(object instanceof TblSettleBank)) {
+        if (!(object instanceof TblDistrict)) {
             return false;
         }
-        TblSettleBank other = (TblSettleBank) object;
+        TblDistrict other = (TblDistrict) object;
         if ((this.id == null && other.id != null) || (this.id != null && !this.id.equals(other.id))) {
             return false;
         }
         return true;
     }
 
-    @Override
-    public String toString() {
-        return "com.napas.achoffline.reportoffline.entity.TblSettleBank[ id=" + id + " ]";
-    }
-    
 }

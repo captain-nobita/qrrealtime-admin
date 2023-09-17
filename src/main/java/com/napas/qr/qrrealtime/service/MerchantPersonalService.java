@@ -2,7 +2,7 @@ package com.napas.qr.qrrealtime.service;
 
 import com.napas.qr.qrrealtime.define.MerchantStatus;
 import com.napas.qr.qrrealtime.define.PaymentAcceptStatus;
-import com.napas.qr.qrrealtime.entity.District;
+import com.napas.qr.qrrealtime.entity.TblDistrict;
 import com.napas.qr.qrrealtime.entity.TblMerchantPersonal;
 import com.napas.qr.qrrealtime.entity.TblSettleBank;
 import com.napas.qr.qrrealtime.models.CreateMerchantPersonalDTO;
@@ -50,13 +50,13 @@ public class MerchantPersonalService extends BaseService {
     public ResponseEntity<?>post(CreateMerchantPersonalDTO input){
         TblMerchantPersonal tblMerchantPersonal = new TblMerchantPersonal();
 
-        tblMerchantPersonal.setMmId(getTargetId());
+       // tblMerchantPersonal.setMmId(getTargetId());
         tblMerchantPersonal.setName(input.getName());
         if (merchantPersonalRepository.existsByMerchantCode(input.getMerchantCode())) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(new MessageResponse("MerchantCode đã tồn tại"));
         }
         tblMerchantPersonal.setMerchantCode(input.getMerchantCode());
-        District district = districtRepository.findById(input.getDistrictId()).orElse(null);
+        TblDistrict district = districtRepository.findById(input.getDistrictId()).orElse(null);
         tblMerchantPersonal.setTblDistrict(district);
         tblMerchantPersonal.setAddressLine(input.getAddressLine());
         tblMerchantPersonal.setOwnerName(input.getOwnerName());
@@ -75,13 +75,13 @@ public class MerchantPersonalService extends BaseService {
 
     public ResponseEntity<?>put(Long id, CreateMerchantPersonalDTO input){
         TblMerchantPersonal tblMerchantPersonal =merchantPersonalRepository.findById(id).orElse(null);
-        tblMerchantPersonal.setMmId(input.getMmId());
+     //   tblMerchantPersonal.setMmId(input.getMmId());
         tblMerchantPersonal.setName(input.getName());
         if (merchantPersonalRepository.existsByMerchantCode(input.getMerchantCode())) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(new MessageResponse("MerchantCode đã tồn tại"));
         }
         tblMerchantPersonal.setMerchantCode(input.getMerchantCode());
-        District district = districtRepository.findById(input.getDistrictId()).orElse(null);
+        TblDistrict district = districtRepository.findById(input.getDistrictId()).orElse(null);
         tblMerchantPersonal.setTblDistrict(district);
         tblMerchantPersonal.setAddressLine(input.getAddressLine());
         tblMerchantPersonal.setOwnerName(input.getOwnerName());

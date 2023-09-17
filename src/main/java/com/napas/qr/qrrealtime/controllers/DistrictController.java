@@ -19,9 +19,9 @@ public class DistrictController {
     @Autowired
     private DistrictService districtService;
 
-    @GetMapping("/search")
-    public List<DistrictDTO>search(HttpServletRequest request,
-                                   @RequestParam(name = "provId", required = false) Long provId){
-        return districtService.get(provId);
-    }
+//    @GetMapping("/search")
+//    public List<DistrictDTO>search(HttpServletRequest request,
+//                                   @RequestParam(name = "provId", required = false) Long provId){
+//        return districtService.get(provId);
+//    }
 }
