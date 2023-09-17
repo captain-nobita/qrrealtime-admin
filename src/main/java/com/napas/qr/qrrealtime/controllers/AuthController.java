@@ -5,6 +5,8 @@ import java.util.stream.Collectors;
 
 import javax.validation.Valid;
 
+import com.napas.qr.qrrealtime.define.ETargetType;
+import com.napas.qr.qrrealtime.entity.*;
 import com.napas.qr.qrrealtime.security.services.UserDetailsImpl;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
@@ -41,7 +43,7 @@ public class AuthController {
 
     @PostMapping("/signin")
     public ResponseEntity<?> authenticateUser(HttpServletRequest request,
-            @Valid @RequestBody LoginRequest loginRequest) {
+                                              @Valid @RequestBody LoginRequest loginRequest) {
 
         Authentication authentication = authenticationManager.authenticate(
                 new UsernamePasswordAuthenticationToken(loginRequest.getUsername(), loginRequest.getPassword()));
@@ -54,10 +56,33 @@ public class AuthController {
                 .map(item -> item.getAuthority())
                 .collect(Collectors.toList());
 
+        TblMasterMerchant masterMerchant = userDetails.getMasterMerchant();
+        TblMerchantCorporate merchantCorporate = userDetails.getMerchant();
+        TblMerchantBranch merchantBranch = userDetails.getBranch();
+        TblMerchantCashier cashier = userDetails.getCashier();
+        TblMerchantPersonal personal = userDetails.getMerchantPersonal();
+
+        String masterMerchantName = masterMerchant.getMmName();
+
+        String branchName = merchantBranch != null ? merchantBranch.getBranchName() : "";
+        String cashierName = cashier != null ? cashier.getCashierCode() : "";
+
+        String merchantName = null;
+        if (userDetails.getTargetType() != ETargetType.MASTER) {
+            merchantName = merchantCorporate != null ? merchantCorporate.getName() : personal.getName();
+        }
+
         return ResponseEntity.ok(new JwtResponse(jwt,
                 userDetails.getId(),
                 userDetails.getUsername(),
                 userDetails.getUsername(),
-                roles, userDetails.getTargetType(), userDetails.getTargetId()));
+                roles,
+                userDetails.getTargetType(),
+                userDetails.getTargetId(),
+                masterMerchantName,
+                merchantName,
+                branchName,
+                cashierName
+        ));
     }
 }

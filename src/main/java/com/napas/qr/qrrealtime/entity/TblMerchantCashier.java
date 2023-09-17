@@ -42,4 +42,16 @@ public class TblMerchantCashier {
 
     @Column(name = "MODIFIED_BY_USER")
     private Long modifiedByUser;
+
+    @ManyToOne
+    @JoinColumn(name = "tbl_merchant_branch_id")
+    private TblMerchantBranch tblMerchantBranch;
+
+    public TblMerchantBranch getTblMerchantBranch() {
+        return tblMerchantBranch;
+    }
+
+    public void setTblMerchantBranch(TblMerchantBranch tblMerchantBranch) {
+        this.tblMerchantBranch = tblMerchantBranch;
+    }
 }

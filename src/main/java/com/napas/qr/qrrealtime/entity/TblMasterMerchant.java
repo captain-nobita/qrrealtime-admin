@@ -1,11 +1,12 @@
 package com.napas.qr.qrrealtime.entity;
 
-import com.napas.qr.qrrealtime.define.MerchantStatus;
 import lombok.Data;
 
 import javax.persistence.*;
 import javax.validation.constraints.NotNull;
-import java.util.Date;
+import javax.validation.constraints.Size;
+import java.time.LocalDateTime;
+import java.util.Collection;
 
 @Data
 @Entity
@@ -20,28 +21,42 @@ public class TblMasterMerchant {
     @Column(name = "ID")
     private Long id;
 
+    @Basic(optional = false)
+    @NotNull
+    @Size(min = 1, max = 2)
     @Column(name = "MM_CODE")
     private String mmCode;
-
-    @Enumerated(EnumType.STRING)
+    @Basic(optional = false)
+    @NotNull
+    @Size(min = 1, max = 20)
     @Column(name = "STATUS")
-    private MerchantStatus status;
-
+    private String status;
+    @Basic(optional = false)
+    @NotNull
+    @Size(min = 1, max = 500)
     @Column(name = "MM_NAME")
     private String mmName;
-
+    @Basic(optional = false)
+    @NotNull
     @Column(name = "DATE_CREATED")
-    private Date dateCreated;
-
+    private LocalDateTime dateCreated;
     @Column(name = "DATE_MODIFIED")
-    private Date dateModified;
-
+    private LocalDateTime dateModified;
+    @Basic(optional = false)
+    @NotNull
     @Column(name = "CREATED_BY_USER")
-    private Long createdByUser;
-
+    private long createdByUser;
     @Column(name = "MODIFIED_BY_USER")
     private Long modifiedByUser;
-
+    @Basic(optional = false)
+    @NotNull
+    @Size(min = 1, max = 20)
     @Column(name = "VIEW_MERCHANT_PAYMENT")
+
     private String viewMerchantPayment;
+    @OneToMany(cascade = CascadeType.ALL, mappedBy = "tblMasterMerchant")
+    private Collection<TblMerchantCorporate> tblMerchantCorporateCollection;
+    @OneToMany(cascade = CascadeType.ALL, mappedBy = "tblMasterMerchant")
+    private Collection<TblMerchantPersonal> tblMerchantPersonalCollection;
+
 }

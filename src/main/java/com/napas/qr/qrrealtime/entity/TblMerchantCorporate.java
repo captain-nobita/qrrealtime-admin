@@ -67,4 +67,16 @@ public class TblMerchantCorporate {
 
     @Column(name = "CREDITOR_ACCOUNT")
     private String creditorAccount;
+
+    @ManyToOne
+    @JoinColumn(name = "tbl_master_merchant_id")
+    private TblMasterMerchant tblMasterMerchant;
+
+    public TblMasterMerchant getTblMasterMerchant() {
+        return tblMasterMerchant;
+    }
+
+    public void setTblMasterMerchant(TblMasterMerchant tblMasterMerchant) {
+        this.tblMasterMerchant = tblMasterMerchant;
+    }
 }

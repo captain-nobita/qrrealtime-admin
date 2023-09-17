@@ -2,12 +2,15 @@ package com.napas.qr.qrrealtime.service;
 
 import com.napas.qr.qrrealtime.define.MerchantStatus;
 import com.napas.qr.qrrealtime.define.PaymentAcceptStatus;
+import com.napas.qr.qrrealtime.entity.District;
 import com.napas.qr.qrrealtime.entity.TblMerchantPersonal;
-import com.napas.qr.qrrealtime.entity.TblOrgUser;
+import com.napas.qr.qrrealtime.entity.TblSettleBank;
 import com.napas.qr.qrrealtime.models.CreateMerchantPersonalDTO;
 import com.napas.qr.qrrealtime.models.TblMerchantPersonalDTO;
 import com.napas.qr.qrrealtime.payload.response.MessageResponse;
+import com.napas.qr.qrrealtime.repository.DistrictRepository;
 import com.napas.qr.qrrealtime.repository.MerchantPersonalRepository;
+import com.napas.qr.qrrealtime.repository.SettleBankRepository;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
@@ -23,6 +26,12 @@ public class MerchantPersonalService extends BaseService {
 
     @Autowired
     private MerchantPersonalRepository merchantPersonalRepository;
+
+    @Autowired
+    private SettleBankRepository settleBankRepository;
+
+    @Autowired
+    private DistrictRepository districtRepository;
 
     @Autowired
     private ModelMapper modelMapper;
@@ -47,16 +56,18 @@ public class MerchantPersonalService extends BaseService {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(new MessageResponse("MerchantCode đã tồn tại"));
         }
         tblMerchantPersonal.setMerchantCode(input.getMerchantCode());
-        tblMerchantPersonal.setDistrictId(input.getDistrictId());
+        District district = districtRepository.findById(input.getDistrictId()).orElse(null);
+        tblMerchantPersonal.setTblDistrict(district);
         tblMerchantPersonal.setAddressLine(input.getAddressLine());
         tblMerchantPersonal.setOwnerName(input.getOwnerName());
         tblMerchantPersonal.setEmailAddress(input.getEmailAddress());
-        tblMerchantPersonal.setSettleBankId(input.getSettleBankId());
+        TblSettleBank settleBank = settleBankRepository.findById(input.getSettleBankId()).orElse(null);
+        tblMerchantPersonal.setTblSettleBank(settleBank);
         tblMerchantPersonal.setCreditorAccount(input.getCreditorAccount());
-        tblMerchantPersonal.setCreateByUser(getUserId());
+        tblMerchantPersonal.setCreatedByUser(getUserId());
         tblMerchantPersonal.setDateCreated(new Date());
         tblMerchantPersonal.setStatus(MerchantStatus.APPROVED);
-        tblMerchantPersonal.setPaymentAcceptStatus(PaymentAcceptStatus.READY);
+        tblMerchantPersonal.setPaymentAcceptanceStatus(PaymentAcceptStatus.READY);
 
         TblMerchantPersonal savedData = merchantPersonalRepository.save(tblMerchantPersonal);
         return ResponseEntity.ok(fromEntity(savedData));
@@ -70,16 +81,18 @@ public class MerchantPersonalService extends BaseService {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(new MessageResponse("MerchantCode đã tồn tại"));
         }
         tblMerchantPersonal.setMerchantCode(input.getMerchantCode());
-        tblMerchantPersonal.setDistrictId(input.getDistrictId());
+        District district = districtRepository.findById(input.getDistrictId()).orElse(null);
+        tblMerchantPersonal.setTblDistrict(district);
         tblMerchantPersonal.setAddressLine(input.getAddressLine());
         tblMerchantPersonal.setOwnerName(input.getOwnerName());
         tblMerchantPersonal.setEmailAddress(input.getEmailAddress());
-        tblMerchantPersonal.setSettleBankId(input.getSettleBankId());
+        TblSettleBank settleBank = settleBankRepository.findById(input.getSettleBankId()).orElse(null);
+        tblMerchantPersonal.setTblSettleBank(settleBank);
         tblMerchantPersonal.setCreditorAccount(input.getCreditorAccount());
         tblMerchantPersonal.setModifiedByUser(getUserId());
         tblMerchantPersonal.setDateModified(new Date());
         tblMerchantPersonal.setStatus(MerchantStatus.APPROVED);
-        tblMerchantPersonal.setPaymentAcceptStatus(PaymentAcceptStatus.READY);
+        tblMerchantPersonal.setPaymentAcceptanceStatus(PaymentAcceptStatus.READY);
 
         TblMerchantPersonal savedData = merchantPersonalRepository.save(tblMerchantPersonal);
         return ResponseEntity.ok(fromEntity(savedData));
