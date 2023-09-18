@@ -3,6 +3,7 @@ package com.napas.qr.qrrealtime.entity;/*
  * Click nbfs://nbhost/SystemFileSystem/Templates/Classes/Class.java to edit this template
  */
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.napas.qr.qrrealtime.define.EBranchAccountSettledType;
 import com.napas.qr.qrrealtime.define.MerchantStatus;
 import com.napas.qr.qrrealtime.define.PaymentAcceptStatus;
@@ -87,12 +88,17 @@ public class TblMerchantCorporate implements Serializable {
 
     @OneToMany(cascade = CascadeType.ALL, mappedBy = "tblMerchantCorporate")
     private Collection<TblMerchantBranch> tblMerchantBranchCollection;
+
+    @NotNull
     @JoinColumn(name = "DISTRICT_ID", referencedColumnName = "ID")
     @ManyToOne(optional = false)
+    @JsonIgnore
     private TblDistrict tblDistrict;
+
     @JoinColumn(name = "MM_ID", referencedColumnName = "ID")
     @ManyToOne(optional = false)
     private TblMasterMerchant tblMasterMerchant;
+
     @JoinColumn(name = "SETTLE_BANK_ID", referencedColumnName = "ID")
     @ManyToOne
     private TblSettleBank tblSettleBank;

@@ -26,9 +26,9 @@ public class TblMerchantBranchDTO {
 
     private LocalDateTime dateModified;
 
-    private long createdByUser;
+    private Long createdByUser;
     private Long modifiedByUser;
-    private Integer settleBankId;
+    private Long settleBankId;
     private String creditorAccount;
 
     private String branchName;
@@ -36,7 +36,110 @@ public class TblMerchantBranchDTO {
 
     private PaymentAcceptStatus paymentAcceptanceStatus;
 
-    private Collection<TblMerchantCashier> tblMerchantCashierCollection;
 
-    private TblMerchantCorporate tblMerchantCorporate;
+    public TblMerchantBranchDTO() {
+    }
+
+
+    public TblMerchantBranchDTO(Long id, String branchCode, MerchantStatus status, Date dateCreated, LocalDateTime dateModified, Long createdByUser, Long modifiedByUser, Long settleBankId, String creditorAccount, String branchName, PaymentAcceptStatus paymentAcceptanceStatus) {
+        this.id = id;
+        this.branchCode = branchCode;
+        this.status = status;
+        this.dateCreated = dateCreated;
+        this.dateModified = dateModified;
+        this.createdByUser = createdByUser;
+        this.modifiedByUser = modifiedByUser;
+        this.settleBankId = settleBankId;
+        this.creditorAccount = creditorAccount;
+        this.branchName = branchName;
+        this.paymentAcceptanceStatus = paymentAcceptanceStatus;
+    }
+
+    public Long getId() {
+        return id;
+    }
+
+    public void setId(Long id) {
+        this.id = id;
+    }
+
+    public String getBranchCode() {
+        return branchCode;
+    }
+
+    public void setBranchCode(String branchCode) {
+        this.branchCode = branchCode;
+    }
+
+    public MerchantStatus getStatus() {
+        return status;
+    }
+
+    public void setStatus(MerchantStatus status) {
+        this.status = status;
+    }
+
+    public Date getDateCreated() {
+        return dateCreated;
+    }
+
+    public void setDateCreated(Date dateCreated) {
+        this.dateCreated = dateCreated;
+    }
+
+    public LocalDateTime getDateModified() {
+        return dateModified;
+    }
+
+    public void setDateModified(LocalDateTime dateModified) {
+        this.dateModified = dateModified;
+    }
+
+    public long getCreatedByUser() {
+        return createdByUser;
+    }
+
+    public void setCreatedByUser(long createdByUser) {
+        this.createdByUser = createdByUser;
+    }
+
+    public Long getModifiedByUser() {
+        return modifiedByUser;
+    }
+
+    public void setModifiedByUser(Long modifiedByUser) {
+        this.modifiedByUser = modifiedByUser;
+    }
+
+    public Long getSettleBankId() {
+        return settleBankId;
+    }
+
+    public void setSettleBankId(Long settleBankId) {
+        this.settleBankId = settleBankId;
+    }
+
+    public String getCreditorAccount() {
+        return creditorAccount;
+    }
+
+    public void setCreditorAccount(String creditorAccount) {
+        this.creditorAccount = creditorAccount;
+    }
+
+    public String getBranchName() {
+        return branchName;
+    }
+
+    public void setBranchName(String branchName) {
+        this.branchName = branchName;
+    }
+
+    public PaymentAcceptStatus getPaymentAcceptanceStatus() {
+        return paymentAcceptanceStatus;
+    }
+
+    public void setPaymentAcceptanceStatus(PaymentAcceptStatus paymentAcceptanceStatus) {
+        this.paymentAcceptanceStatus = paymentAcceptanceStatus;
+    }
 }

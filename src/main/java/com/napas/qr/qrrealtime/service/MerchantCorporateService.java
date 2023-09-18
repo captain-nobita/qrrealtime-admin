@@ -43,7 +43,6 @@ public class MerchantCorporateService extends BaseService {
 
     private TblMerchantCorporateDTO fromEntity(TblMerchantCorporate entity) {
         TblMerchantCorporateDTO dto = modelMapper.map(entity, TblMerchantCorporateDTO.class);
-        dto.setDistrictId(entity.getTblDistrict().getId());
         return dto;
     }
 
@@ -68,6 +67,7 @@ public class MerchantCorporateService extends BaseService {
             tblMerchantCorporate.setTblSettleBank(settleBank);
             tblMerchantCorporate.setCreditorAccount(input.getCreditorAccount());
             tblMerchantCorporate.setCreatedByUser(getUserId());
+            tblMerchantCorporate.setPhoneNumber(input.getPhoneNumber());
             tblMerchantCorporate.setDateCreated(new Date());
             tblMerchantCorporate.setStatus(MerchantStatus.APPROVED);
             TblMasterMerchant masterMerchant = masterMerchantRepository.findById(getTargetId()).orElse(null);
@@ -92,6 +92,7 @@ public class MerchantCorporateService extends BaseService {
             tblMerchantCorporate.setAddressLine(input.getAddressLine());
             TblSettleBank settleBank = settleBankRepository.findById(input.getSettleBankId()).orElse(null);
             tblMerchantCorporate.setTblSettleBank(settleBank);
+            tblMerchantCorporate.setPhoneNumber(input.getPhoneNumber());
             tblMerchantCorporate.setCreditorAccount(input.getCreditorAccount());
             tblMerchantCorporate.setModifiedByUser(getUserId());
             tblMerchantCorporate.setDateModified(new Date());
@@ -122,6 +123,6 @@ public class MerchantCorporateService extends BaseService {
         if (merchant == null) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body(new MessageResponse("Không tồn tại Merchant cá nhân này"));
         }
-        return ResponseEntity.ok(merchant);
+        return ResponseEntity.ok(fromEntity(merchant));
     }
 }

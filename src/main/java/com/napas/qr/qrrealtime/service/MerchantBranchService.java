@@ -1,23 +1,40 @@
 package com.napas.qr.qrrealtime.service;
 
+import com.napas.qr.qrrealtime.define.ERole;
+import com.napas.qr.qrrealtime.define.ETargetType;
 import com.napas.qr.qrrealtime.define.MerchantStatus;
-import com.napas.qr.qrrealtime.entity.TblMerchantBranch;
-import com.napas.qr.qrrealtime.entity.TblMerchantCorporate;
+import com.napas.qr.qrrealtime.define.PaymentAcceptStatus;
+import com.napas.qr.qrrealtime.entity.*;
+import com.napas.qr.qrrealtime.models.CreatedMerchantBranchDTO;
 import com.napas.qr.qrrealtime.models.TblMerchantBranchDTO;
-import com.napas.qr.qrrealtime.models.TblMerchantCorporateDTO;
+import com.napas.qr.qrrealtime.payload.response.MessageResponse;
 import com.napas.qr.qrrealtime.repository.MerchantBranchRepository;
+import com.napas.qr.qrrealtime.repository.MerchantCorporateRepository;
+import com.napas.qr.qrrealtime.repository.SettleBankRepository;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDateTime;
+
+
 @Service
-public class MerchantBranchService {
+public class MerchantBranchService extends BaseService {
 
     @Autowired
     private MerchantBranchRepository merchantBranchRepository;
+
+
+    @Autowired
+    private MerchantCorporateRepository merchantCorporateRepository;
+
+
+    @Autowired
+    private SettleBankRepository settleBankRepository;
 
     @Autowired
     private ModelMapper modelMapper;
@@ -31,5 +48,77 @@ public class MerchantBranchService {
     public ResponseEntity<?> search(Pageable paging, String branchName, MerchantStatus status, String branchCode) {
         Page<TblMerchantBranch> dbResult  = merchantBranchRepository.search(paging,branchName,status,branchCode);
         return ResponseEntity.ok(dbResult.map(entity -> fromEntity(entity)));
+    }
+
+    public ResponseEntity<?> post(CreatedMerchantBranchDTO input) {
+
+        TblMerchantBranch tblMerchantBranch = new TblMerchantBranch();
+
+        if (getUserDetails().getTargetType() == ETargetType.MERCHANT && getERole().equals(ERole.ADMIN)) {
+
+            TblMerchantCorporate merchant = getUserDetails().getMerchant();
+
+            tblMerchantBranch.setBranchCode(input.getBranchCode());
+            TblMerchantCorporate merchantCorporate = merchantCorporateRepository.findById(merchant.getId()).orElse(null);
+
+            tblMerchantBranch.setTblMerchantCorporate(merchantCorporate);
+            tblMerchantBranch.setStatus(MerchantStatus.APPROVED);
+            tblMerchantBranch.setDateCreated(LocalDateTime.now());
+            tblMerchantBranch.setCreatedByUser(getUserId());
+            if (input.getSettleBankId() == null){
+                return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(new MessageResponse("Bạn chưa nhập ngân hàng thụ hưởng"));
+
+            }
+            TblSettleBank tblSettleBank = settleBankRepository.findById(input.getSettleBankId()).orElse(null);
+            tblMerchantBranch.setTblSettleBank(tblSettleBank);
+            tblMerchantBranch.setCreditorAccount(input.getCreditorAccount());
+            tblMerchantBranch.setBranchName(input.getBranchName());
+            tblMerchantBranch.setPaymentAcceptanceStatus(PaymentAcceptStatus.READY);
+
+            TblMerchantBranch savedData = merchantBranchRepository.save(tblMerchantBranch);
+
+            return ResponseEntity.ok(fromEntity(savedData));
+        } else {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(new MessageResponse("Bạn không có quyền tạo Merchant này"));
+
+        }
+    }
+
+    public ResponseEntity<?> put(Long id,CreatedMerchantBranchDTO input) {
+
+        TblMerchantBranch tblMerchantBranch = merchantBranchRepository.findById(id).orElse(null);
+
+        if (getUserDetails().getTargetType() == ETargetType.MERCHANT && getERole().equals(ERole.ADMIN)) {
+
+
+            tblMerchantBranch.setModifiedByUser(getUserId());
+            tblMerchantBranch.setDateModified(LocalDateTime.now());
+            if (input.getSettleBankId() == null){
+                return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(new MessageResponse("Bạn chưa nhập ngân hàng thụ hưởng"));
+
+            }
+            TblSettleBank tblSettleBank = settleBankRepository.findById(input.getSettleBankId()).orElse(null);
+            tblMerchantBranch.setTblSettleBank(tblSettleBank);
+            tblMerchantBranch.setCreditorAccount(input.getCreditorAccount());
+            tblMerchantBranch.setBranchName(input.getBranchName());
+
+            TblMerchantBranch savedData = merchantBranchRepository.save(tblMerchantBranch);
+
+            return ResponseEntity.ok(fromEntity(savedData));
+        } else {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(new MessageResponse("Bạn không có quyền sửa Merchant này"));
+
+        }
+    }
+    public ResponseEntity<?> delete(Long id) {
+        if (getUserDetails().getTargetType() == ETargetType.MERCHANT && getERole().equals(ERole.ADMIN)){
+            TblMerchantBranch merchant = merchantBranchRepository.findById(id).orElse(null);
+            merchant.setStatus(MerchantStatus.DELETED);
+            merchant.setDateModified(LocalDateTime.now());
+            merchantBranchRepository.save(merchant);
+            return ResponseEntity.ok(new MessageResponse("Delete merchant"));
+        }else {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(new MessageResponse("Bạn không có quyền xóa Merchant này"));
+        }
     }
 }

@@ -15,8 +15,8 @@ public interface MerchantCorporateRepository extends JpaRepository<TblMerchantCo
 
     @Query("SELECT T FROM TblMerchantCorporate T WHERE " +
             " (T.name = :name or :name is null) " +
-            " AND (T.status=:status or :status is null) " +
-            " AND(T.merchantCode=:merchantCode or :merchantCode is null)" +
+            " AND (T.status= :status or :status is null) " +
+            " AND(T.merchantCode= :merchantCode or :merchantCode is null)" +
             " AND(T.status<>'DELETED') ")
     Page<TblMerchantCorporate>search(Pageable pageable,
                                         @Param("name") String name,

@@ -3,6 +3,8 @@ package com.napas.qr.qrrealtime.entity;/*
  * Click nbfs://nbhost/SystemFileSystem/Templates/Classes/Class.java to edit this template
  */
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+
 import java.io.Serializable;
 import java.time.LocalDateTime;
 import java.util.Collection;
@@ -67,8 +69,10 @@ public class TblMasterMerchant implements Serializable {
     @Column(name = "VIEW_MERCHANT_PAYMENT")
     private String viewMerchantPayment;
     @OneToMany(cascade = CascadeType.ALL, mappedBy = "tblMasterMerchant")
+    @JsonIgnore
     private Collection<TblMerchantCorporate> tblMerchantCorporateCollection;
     @OneToMany(cascade = CascadeType.ALL, mappedBy = "tblMasterMerchant")
+    @JsonIgnore
     private Collection<TblMerchantPersonal> tblMerchantPersonalCollection;
 
     public TblMasterMerchant() {

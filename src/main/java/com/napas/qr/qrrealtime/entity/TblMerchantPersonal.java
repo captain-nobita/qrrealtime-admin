@@ -3,6 +3,7 @@ package com.napas.qr.qrrealtime.entity;/*
  * Click nbfs://nbhost/SystemFileSystem/Templates/Classes/Class.java to edit this template
  */
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.napas.qr.qrrealtime.define.MerchantStatus;
 import com.napas.qr.qrrealtime.define.PaymentAcceptStatus;
 
@@ -80,6 +81,7 @@ public class TblMerchantPersonal implements Serializable {
 
     @JoinColumn(name = "DISTRICT_ID", referencedColumnName = "ID")
     @ManyToOne(optional = false)
+    @JsonIgnore
     private TblDistrict tblDistrict;
     @JoinColumn(name = "MM_ID", referencedColumnName = "ID")
     @ManyToOne(optional = false)

@@ -64,6 +64,7 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
                 .antMatchers("/api/test/**").permitAll()
                 .antMatchers("/api/dictionary/**").permitAll()
                 .antMatchers("/api/reportoffline/**").permitAll()
+                .antMatchers("/api/portal/captcha").permitAll()
                 .antMatchers(
                         "/static/**",
                         "/images/**",

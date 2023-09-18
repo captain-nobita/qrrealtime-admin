@@ -1,5 +1,6 @@
 package com.napas.qr.qrrealtime.service;
 
+import com.napas.qr.qrrealtime.define.ERole;
 import com.napas.qr.qrrealtime.entity.TblOrgUser;
 import com.napas.qr.qrrealtime.repository.UserRepository;
 import com.napas.qr.qrrealtime.security.services.UserDetailsImpl;
@@ -25,6 +26,12 @@ public class BaseService {
         Principal principal = (Principal) SecurityContextHolder.getContext().getAuthentication();
         Optional<TblOrgUser> opt = userRepository.findByUsername(principal.getName());
         return opt.get().getTargetId();
+    }
+
+    public ERole getERole(){
+        Principal principal = (Principal) SecurityContextHolder.getContext().getAuthentication();
+        Optional<TblOrgUser> opt = userRepository.findByUsername(principal.getName());
+        return opt.get().getRole();
     }
 
     public UserDetailsImpl getUserDetails(){

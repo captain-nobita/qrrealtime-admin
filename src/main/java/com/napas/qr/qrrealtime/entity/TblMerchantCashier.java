@@ -3,17 +3,12 @@ package com.napas.qr.qrrealtime.entity;/*
  * Click nbfs://nbhost/SystemFileSystem/Templates/Classes/Class.java to edit this template
  */
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.napas.qr.qrrealtime.define.MerchantStatus;
+
 import java.io.Serializable;
 import java.time.LocalDateTime;
-import javax.persistence.Basic;
-import javax.persistence.Column;
-import javax.persistence.Entity;
-import javax.persistence.Id;
-import javax.persistence.JoinColumn;
-import javax.persistence.ManyToOne;
-import javax.persistence.NamedQueries;
-import javax.persistence.NamedQuery;
-import javax.persistence.Table;
+import javax.persistence.*;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
 
@@ -29,6 +24,8 @@ public class TblMerchantCashier implements Serializable {
 
     private static final long serialVersionUID = 1L;
     @Id
+    @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "SEQ_TBL_MERCHANT_CASHIER")
+    @SequenceGenerator(sequenceName = "SEQ_TBL_MERCHANT_CASHIER", allocationSize = 1, name = "SEQ_TBL_MERCHANT_CASHIER")
     @Basic(optional = false)
     @NotNull
     @Column(name = "ID")
@@ -40,9 +37,9 @@ public class TblMerchantCashier implements Serializable {
     private String cashierCode;
     @Basic(optional = false)
     @NotNull
-    @Size(min = 1, max = 20)
+    @Enumerated(EnumType.STRING)
     @Column(name = "STATUS")
-    private String status;
+    private MerchantStatus status;
     @Basic(optional = false)
     @NotNull
     @Column(name = "DATE_CREATED")
@@ -52,11 +49,12 @@ public class TblMerchantCashier implements Serializable {
     @Basic(optional = false)
     @NotNull
     @Column(name = "CREATED_BY_USER")
-    private long createdByUser;
+    private Long createdByUser;
     @Column(name = "MODIFIED_BY_USER")
     private Long modifiedByUser;
     @JoinColumn(name = "BRANCH_ID", referencedColumnName = "ID")
     @ManyToOne(optional = false)
+    @JsonIgnore
     private TblMerchantBranch tblMerchantBranch;
 
     public TblMerchantCashier() {
@@ -66,7 +64,7 @@ public class TblMerchantCashier implements Serializable {
         this.id = id;
     }
 
-    public TblMerchantCashier(Long id, String cashierCode, String status, LocalDateTime dateCreated, long createdByUser) {
+    public TblMerchantCashier(Long id, String cashierCode, MerchantStatus status, LocalDateTime dateCreated, long createdByUser) {
         this.id = id;
         this.cashierCode = cashierCode;
         this.status = status;
@@ -90,11 +88,11 @@ public class TblMerchantCashier implements Serializable {
         this.cashierCode = cashierCode;
     }
 
-    public String getStatus() {
+    public MerchantStatus getStatus() {
         return status;
     }
 
-    public void setStatus(String status) {
+    public void setStatus(MerchantStatus status) {
         this.status = status;
     }
 
@@ -157,10 +155,4 @@ public class TblMerchantCashier implements Serializable {
         }
         return true;
     }
-
-    @Override
-    public String toString() {
-        return "com.napas.achoffline.reportoffline.entity.TblMerchantCashier[ id=" + id + " ]";
-    }
-    
 }
