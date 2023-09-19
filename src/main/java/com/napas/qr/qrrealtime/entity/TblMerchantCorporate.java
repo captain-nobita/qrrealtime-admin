@@ -3,6 +3,7 @@ package com.napas.qr.qrrealtime.entity;/*
  * Click nbfs://nbhost/SystemFileSystem/Templates/Classes/Class.java to edit this template
  */
 
+import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.napas.qr.qrrealtime.define.EBranchAccountSettledType;
 import com.napas.qr.qrrealtime.define.MerchantStatus;
@@ -60,8 +61,11 @@ public class TblMerchantCorporate implements Serializable {
     @NotNull
     @Column(name = "DATE_CREATED")
     @Temporal(TemporalType.TIMESTAMP)
+    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd HH:mm:ss", timezone = "Asia/Ho_Chi_Minh")
     private Date dateCreated;
+
     @Column(name = "DATE_MODIFIED")
+    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd HH:mm:ss", timezone = "Asia/Ho_Chi_Minh")
     @Temporal(TemporalType.TIMESTAMP)
     private Date dateModified;
     @Basic(optional = false)

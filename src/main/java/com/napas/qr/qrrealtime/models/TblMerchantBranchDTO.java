@@ -1,10 +1,12 @@
 package com.napas.qr.qrrealtime.models;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
 import com.napas.qr.qrrealtime.define.MerchantStatus;
 import com.napas.qr.qrrealtime.define.PaymentAcceptStatus;
 import com.napas.qr.qrrealtime.entity.TblMerchantCashier;
 import com.napas.qr.qrrealtime.entity.TblMerchantCorporate;
 import lombok.Data;
+import org.apache.tomcat.jni.Local;
 
 import javax.persistence.*;
 import javax.validation.constraints.NotNull;
@@ -22,13 +24,17 @@ public class TblMerchantBranchDTO {
 
     private MerchantStatus status;
 
+    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd HH:mm:ss", timezone = "Asia/Ho_Chi_Minh")
     private Date dateCreated;
 
-    private LocalDateTime dateModified;
+    private Date dateModified;
 
     private Long createdByUser;
+
     private Long modifiedByUser;
+
     private Long settleBankId;
+
     private String creditorAccount;
 
     private String branchName;
@@ -41,7 +47,7 @@ public class TblMerchantBranchDTO {
     }
 
 
-    public TblMerchantBranchDTO(Long id, String branchCode, MerchantStatus status, Date dateCreated, LocalDateTime dateModified, Long createdByUser, Long modifiedByUser, Long settleBankId, String creditorAccount, String branchName, PaymentAcceptStatus paymentAcceptanceStatus) {
+    public TblMerchantBranchDTO(Long id, String branchCode, MerchantStatus status, Date dateCreated, Date dateModified, Long createdByUser, Long modifiedByUser, Long settleBankId, String creditorAccount, String branchName, PaymentAcceptStatus paymentAcceptanceStatus) {
         this.id = id;
         this.branchCode = branchCode;
         this.status = status;
@@ -87,11 +93,11 @@ public class TblMerchantBranchDTO {
         this.dateCreated = dateCreated;
     }
 
-    public LocalDateTime getDateModified() {
+    public Date getDateModified() {
         return dateModified;
     }
 
-    public void setDateModified(LocalDateTime dateModified) {
+    public void setDateModified(Date dateModified) {
         this.dateModified = dateModified;
     }
 

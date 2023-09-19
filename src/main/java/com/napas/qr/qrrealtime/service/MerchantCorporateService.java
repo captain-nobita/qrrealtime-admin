@@ -43,11 +43,21 @@ public class MerchantCorporateService extends BaseService {
 
     private TblMerchantCorporateDTO fromEntity(TblMerchantCorporate entity) {
         TblMerchantCorporateDTO dto = modelMapper.map(entity, TblMerchantCorporateDTO.class);
+        dto.setDistrictId(entity.getTblDistrict().getId());
+        dto.setProvId(entity.getTblDistrict().getTblProvince().getId());
+        dto.setDistrictName(entity.getTblDistrict().getDistrictName());
+        dto.setProvName(entity.getTblDistrict().getTblProvince().getProvName());
+        dto.setSettleBankId(entity.getTblSettleBank().getId());
         return dto;
     }
 
     public ResponseEntity<?> search(Pageable paging, String name, MerchantStatus status, String merchantCode) {
-        Page<TblMerchantCorporate> dbResult  = merchantCorporateRepository.search(paging,name,status,merchantCode);
+        if (getUserDetails().getMasterMerchant().getMmName().equals("NAPAS")){
+            Page<TblMerchantCorporate> dbResult  = merchantCorporateRepository.search(paging,name,status,merchantCode, null);
+            return ResponseEntity.ok(dbResult.map(entity -> fromEntity(entity)));
+        }
+        TblMasterMerchant masterMerchant = getUserDetails().getMasterMerchant();
+        Page<TblMerchantCorporate> dbResult  = merchantCorporateRepository.search(paging,name,status,merchantCode, masterMerchant.getId());
         return ResponseEntity.ok(dbResult.map(entity -> fromEntity(entity)));
     }
 

@@ -2,6 +2,7 @@ package com.napas.qr.qrrealtime.entity;/*
  * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
  * Click nbfs://nbhost/SystemFileSystem/Templates/Classes/Class.java to edit this template
  */
+import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.napas.qr.qrrealtime.define.MerchantStatus;
 import com.napas.qr.qrrealtime.define.PaymentAcceptStatus;
@@ -10,6 +11,7 @@ import lombok.Data;
 import java.io.Serializable;
 import java.time.LocalDateTime;
 import java.util.Collection;
+import java.util.Date;
 import javax.persistence.*;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
@@ -47,11 +49,13 @@ public class TblMerchantBranch implements Serializable {
     @Basic(optional = false)
     @NotNull
     @Column(name = "DATE_CREATED")
-    private LocalDateTime dateCreated;
+    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd HH:mm:ss", timezone = "Asia/Ho_Chi_Minh")
+    private Date dateCreated;
 
 
     @Column(name = "DATE_MODIFIED")
-    private LocalDateTime dateModified;
+    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd HH:mm:ss", timezone = "Asia/Ho_Chi_Minh")
+    private Date dateModified;
 
     @Basic(optional = false)
     @NotNull
@@ -96,7 +100,7 @@ public class TblMerchantBranch implements Serializable {
         this.id = id;
     }
 
-    public TblMerchantBranch(Long id, String branchCode, MerchantStatus status, LocalDateTime dateCreated, long createdByUser, String branchName) {
+    public TblMerchantBranch(Long id, String branchCode, MerchantStatus status, Date dateCreated, Long createdByUser, String branchName) {
         this.id = id;
         this.branchCode = branchCode;
         this.status = status;
@@ -129,19 +133,19 @@ public class TblMerchantBranch implements Serializable {
         this.status = status;
     }
 
-    public LocalDateTime getDateCreated() {
+    public Date getDateCreated() {
         return dateCreated;
     }
 
-    public void setDateCreated(LocalDateTime dateCreated) {
+    public void setDateCreated(Date dateCreated) {
         this.dateCreated = dateCreated;
     }
 
-    public LocalDateTime getDateModified() {
+    public Date getDateModified() {
         return dateModified;
     }
 
-    public void setDateModified(LocalDateTime dateModified) {
+    public void setDateModified(Date dateModified) {
         this.dateModified = dateModified;
     }
 

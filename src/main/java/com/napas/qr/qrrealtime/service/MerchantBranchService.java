@@ -19,7 +19,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
-import java.time.LocalDateTime;
+import java.util.Date;
 
 
 @Service
@@ -42,12 +42,19 @@ public class MerchantBranchService extends BaseService {
 
     private TblMerchantBranchDTO fromEntity(TblMerchantBranch entity) {
         TblMerchantBranchDTO dto = modelMapper.map(entity, TblMerchantBranchDTO.class);
+        dto.setSettleBankId(entity.getTblSettleBank().getId());
         return dto;
     }
 
     public ResponseEntity<?> search(Pageable paging, String branchName, MerchantStatus status, String branchCode) {
-        Page<TblMerchantBranch> dbResult  = merchantBranchRepository.search(paging,branchName,status,branchCode);
-        return ResponseEntity.ok(dbResult.map(entity -> fromEntity(entity)));
+        TblMerchantCorporate merchantCorporate= getUserDetails().getMerchant();
+        if (getUserDetails().getMasterMerchant().getMmName().equals("NAPAS")){
+            Page<TblMerchantBranch> dbResult  = merchantBranchRepository.search(paging,branchName,status,branchCode,null);
+            return ResponseEntity.ok(dbResult.map(entity -> fromEntity(entity)));
+        }else {
+            Page<TblMerchantBranch> dbResult  = merchantBranchRepository.search(paging,branchName,status,branchCode, merchantCorporate.getId());
+            return ResponseEntity.ok(dbResult.map(entity -> fromEntity(entity)));
+        }
     }
 
     public ResponseEntity<?> post(CreatedMerchantBranchDTO input) {
@@ -63,7 +70,7 @@ public class MerchantBranchService extends BaseService {
 
             tblMerchantBranch.setTblMerchantCorporate(merchantCorporate);
             tblMerchantBranch.setStatus(MerchantStatus.APPROVED);
-            tblMerchantBranch.setDateCreated(LocalDateTime.now());
+            tblMerchantBranch.setDateCreated(new Date());
             tblMerchantBranch.setCreatedByUser(getUserId());
             if (input.getSettleBankId() == null){
                 return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(new MessageResponse("Bạn chưa nhập ngân hàng thụ hưởng"));
@@ -79,7 +86,7 @@ public class MerchantBranchService extends BaseService {
 
             return ResponseEntity.ok(fromEntity(savedData));
         } else {
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(new MessageResponse("Bạn không có quyền tạo Merchant này"));
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(new MessageResponse("Bạn không có quyền tạo Branch này"));
 
         }
     }
@@ -92,7 +99,7 @@ public class MerchantBranchService extends BaseService {
 
 
             tblMerchantBranch.setModifiedByUser(getUserId());
-            tblMerchantBranch.setDateModified(LocalDateTime.now());
+            tblMerchantBranch.setDateModified(new Date());
             if (input.getSettleBankId() == null){
                 return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(new MessageResponse("Bạn chưa nhập ngân hàng thụ hưởng"));
 
@@ -106,7 +113,7 @@ public class MerchantBranchService extends BaseService {
 
             return ResponseEntity.ok(fromEntity(savedData));
         } else {
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(new MessageResponse("Bạn không có quyền sửa Merchant này"));
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(new MessageResponse("Bạn không có quyền sửa Branch này"));
 
         }
     }
@@ -114,11 +121,11 @@ public class MerchantBranchService extends BaseService {
         if (getUserDetails().getTargetType() == ETargetType.MERCHANT && getERole().equals(ERole.ADMIN)){
             TblMerchantBranch merchant = merchantBranchRepository.findById(id).orElse(null);
             merchant.setStatus(MerchantStatus.DELETED);
-            merchant.setDateModified(LocalDateTime.now());
+            merchant.setDateModified(new Date());
             merchantBranchRepository.save(merchant);
             return ResponseEntity.ok(new MessageResponse("Delete merchant"));
         }else {
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(new MessageResponse("Bạn không có quyền xóa Merchant này"));
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(new MessageResponse("Bạn không có quyền xóa Branch này"));
         }
     }
 }

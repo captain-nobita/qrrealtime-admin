@@ -8,6 +8,7 @@ import com.napas.qr.qrrealtime.define.MerchantStatus;
 
 import java.io.Serializable;
 import java.time.LocalDateTime;
+import java.util.Date;
 import javax.persistence.*;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
@@ -43,9 +44,9 @@ public class TblMerchantCashier implements Serializable {
     @Basic(optional = false)
     @NotNull
     @Column(name = "DATE_CREATED")
-    private LocalDateTime dateCreated;
+    private Date dateCreated;
     @Column(name = "DATE_MODIFIED")
-    private LocalDateTime dateModified;
+    private Date dateModified;
     @Basic(optional = false)
     @NotNull
     @Column(name = "CREATED_BY_USER")
@@ -64,7 +65,7 @@ public class TblMerchantCashier implements Serializable {
         this.id = id;
     }
 
-    public TblMerchantCashier(Long id, String cashierCode, MerchantStatus status, LocalDateTime dateCreated, long createdByUser) {
+    public TblMerchantCashier(Long id, String cashierCode, MerchantStatus status, Date dateCreated, Long createdByUser) {
         this.id = id;
         this.cashierCode = cashierCode;
         this.status = status;
@@ -96,19 +97,19 @@ public class TblMerchantCashier implements Serializable {
         this.status = status;
     }
 
-    public LocalDateTime getDateCreated() {
+    public Date getDateCreated() {
         return dateCreated;
     }
 
-    public void setDateCreated(LocalDateTime dateCreated) {
+    public void setDateCreated(Date dateCreated) {
         this.dateCreated = dateCreated;
     }
 
-    public LocalDateTime getDateModified() {
+    public Date getDateModified() {
         return dateModified;
     }
 
-    public void setDateModified(LocalDateTime dateModified) {
+    public void setDateModified(Date dateModified) {
         this.dateModified = dateModified;
     }
 

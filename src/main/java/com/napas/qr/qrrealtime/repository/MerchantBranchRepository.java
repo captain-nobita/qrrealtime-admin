@@ -17,10 +17,12 @@ public interface MerchantBranchRepository extends JpaRepository<TblMerchantBranc
             " (T.branchName = :branchName or :branchName is null) " +
             " AND (T.status= :status or :status is null) " +
             " AND(T.branchCode= :branchCode or :branchCode is null)" +
+            " AND(T.tblMerchantCorporate.id= :merchantId or :merchantId is null)" +
             " AND(T.status<>'DELETED') ")
     Page<TblMerchantBranch> search(Pageable pageable,
-                                      @Param("branchName") String branchName,
-                                      @Param("status") MerchantStatus status,
-                                      @Param("branchCode") String branchCode);
+                                   @Param("branchName") String branchName,
+                                   @Param("status") MerchantStatus status,
+                                   @Param("branchCode") String branchCode,
+                                   @Param("merchantId") Long merchantId);
 
 }
