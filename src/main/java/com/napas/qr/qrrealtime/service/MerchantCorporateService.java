@@ -65,9 +65,15 @@ public class MerchantCorporateService extends BaseService {
 
         TblMerchantCorporate tblMerchantCorporate = new TblMerchantCorporate();
         if (getUserDetails().getTargetType() == ETargetType.MASTER) {
+            if (input.getName()== null){
+                return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(new MessageResponse("Tên Merchant không được để trống"));
+            }
             tblMerchantCorporate.setName(input.getName());
             if (merchantCorporateRepository.existsByMerchantCode(input.getMerchantCode())) {
                 return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(new MessageResponse("MerchantCode đã tồn tại"));
+            }
+            if (input.getMerchantCode().length()>3){
+                return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(new MessageResponse("Bạn đã nhập MerchantCode quá số kí tự cho phép"));
             }
             tblMerchantCorporate.setMerchantCode(input.getMerchantCode());
             TblDistrict district = districtRepository.findById(input.getDistrictId()).orElse(null);
@@ -80,9 +86,14 @@ public class MerchantCorporateService extends BaseService {
             tblMerchantCorporate.setPhoneNumber(input.getPhoneNumber());
             tblMerchantCorporate.setDateCreated(new Date());
             tblMerchantCorporate.setStatus(MerchantStatus.APPROVED);
-            TblMasterMerchant masterMerchant = masterMerchantRepository.findById(getTargetId()).orElse(null);
+            TblMasterMerchant masterMerchant = getUserDetails().getMasterMerchant();
             tblMerchantCorporate.setTblMasterMerchant(masterMerchant);
             tblMerchantCorporate.setBranchAccountSettledType(EBranchAccountSettledType.CENTRALIZED);
+            if (input.getDkkd() == null){
+                return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(new MessageResponse("Bạn chưa nhập mã Đăng Kí Kinh Doanh"));
+            }
+            tblMerchantCorporate.setDkkd(input.getDkkd());
+            tblMerchantCorporate.setTaxNumber(input.getTaxNumber());
             tblMerchantCorporate.setPaymentAcceptanceStatus(PaymentAcceptStatus.READY);
 
             TblMerchantCorporate savedData = merchantCorporateRepository.save(tblMerchantCorporate);
@@ -96,6 +107,9 @@ public class MerchantCorporateService extends BaseService {
 
         TblMerchantCorporate tblMerchantCorporate = merchantCorporateRepository.findById(id).orElse(null);
         if (getUserDetails().getTargetType() == ETargetType.MASTER) {
+            if (input.getName()== null){
+                return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(new MessageResponse("Tên Merchant không được để trống"));
+            }
             tblMerchantCorporate.setName(input.getName());
             TblDistrict district = districtRepository.findById(input.getDistrictId()).orElse(null);
             tblMerchantCorporate.setTblDistrict(district);
@@ -109,6 +123,11 @@ public class MerchantCorporateService extends BaseService {
             tblMerchantCorporate.setStatus(MerchantStatus.APPROVED);
             TblMasterMerchant masterMerchant = masterMerchantRepository.findById(getTargetId()).orElse(null);
             tblMerchantCorporate.setTblMasterMerchant(masterMerchant);
+            if (input.getDkkd() == null){
+                return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(new MessageResponse("Bạn chưa nhập mã Đăng Kí Kinh Doanh"));
+            }
+            tblMerchantCorporate.setDkkd(input.getDkkd());
+            tblMerchantCorporate.setTaxNumber(input.getTaxNumber());
             tblMerchantCorporate.setBranchAccountSettledType(EBranchAccountSettledType.CENTRALIZED);
             tblMerchantCorporate.setPaymentAcceptanceStatus(PaymentAcceptStatus.READY);
 

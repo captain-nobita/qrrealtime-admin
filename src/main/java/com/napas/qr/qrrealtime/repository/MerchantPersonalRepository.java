@@ -16,7 +16,7 @@ public interface MerchantPersonalRepository extends JpaRepository<TblMerchantPer
     Boolean existsByMerchantCode(String merchantCode);
 
     @Query("SELECT T FROM TblMerchantPersonal T WHERE " +
-            " (T.name = :name or :name is null) " +
+            " (T.name like %:name% or :name is null) " +
             " AND (T.status=:status or :status is null) " +
             " AND(T.merchantCode=:merchantCode or :merchantCode is null)" +
             " AND(T.status <> 'DELETED') ")

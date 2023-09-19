@@ -107,6 +107,29 @@ public class TblMerchantCorporate implements Serializable {
     @ManyToOne
     private TblSettleBank tblSettleBank;
 
+    @Column(name = "TAX_NUMBER")
+    private String taxNumber;
+
+    @Column(name = "DKKD")
+    private String dkkd;
+
+
+    public String getTaxNumber() {
+        return taxNumber;
+    }
+
+    public void setTaxNumber(String taxNumber) {
+        this.taxNumber = taxNumber;
+    }
+
+    public String getDkkd() {
+        return dkkd;
+    }
+
+    public void setDkkd(String dkkd) {
+        this.dkkd = dkkd;
+    }
+
     public TblMerchantCorporate() {
     }
 

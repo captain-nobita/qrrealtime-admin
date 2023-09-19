@@ -14,7 +14,7 @@ import org.springframework.stereotype.Repository;
 public interface MerchantCashierRepository extends JpaRepository<TblMerchantCashier, Long> {
 
     @Query("SELECT T FROM TblMerchantCashier T WHERE " +
-            " (T.cashierCode = :cashierCode or :cashierCode is null) " +
+            " (T.cashierCode like %:cashierCode% or :cashierCode is null) " +
             " AND (T.status= :status or :status is null) " +
             " AND(T.tblMerchantBranch.id= :branchId or :branchId is null)" +
             " AND(T.status<>'DELETED') ")

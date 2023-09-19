@@ -40,6 +40,26 @@ public class TblMerchantCorporateDTO {
 
     private Long settleBankId;
 
+    private String taxNumber;
+
+    private String dkkd;
+
+    public String getTaxNumber() {
+        return taxNumber;
+    }
+
+    public void setTaxNumber(String taxNumber) {
+        this.taxNumber = taxNumber;
+    }
+
+    public String getDkkd() {
+        return dkkd;
+    }
+
+    public void setDkkd(String dkkd) {
+        this.dkkd = dkkd;
+    }
+
     public Long getSettleBankId() {
         return settleBankId;
     }

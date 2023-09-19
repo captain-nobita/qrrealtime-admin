@@ -14,9 +14,9 @@ public interface MerchantCorporateRepository extends JpaRepository<TblMerchantCo
     Boolean existsByMerchantCode(String merchantCode);
 
     @Query("SELECT T FROM TblMerchantCorporate T WHERE " +
-            " (T.name = :name or :name is null) " +
+            " (T.name like %:name% or :name is null) " +
             " AND (T.status= :status or :status is null) " +
-            " AND(T.merchantCode= :merchantCode or :merchantCode is null)" +
+            " AND(T.merchantCode like %:merchantCode% or :merchantCode is null)" +
             " AND(T.tblMasterMerchant.id= :masterMerchantId or :masterMerchantId is null)" +
             " AND(T.status<>'DELETED') ")
     Page<TblMerchantCorporate> search(Pageable pageable,
