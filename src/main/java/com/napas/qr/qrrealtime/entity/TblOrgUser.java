@@ -5,6 +5,7 @@ package com.napas.qr.qrrealtime.entity;/*
 
 import com.napas.qr.qrrealtime.define.ERole;
 import com.napas.qr.qrrealtime.define.ETargetType;
+import com.napas.qr.qrrealtime.define.MerchantStatus;
 
 import java.io.Serializable;
 import java.time.LocalDateTime;
@@ -45,12 +46,12 @@ public class TblOrgUser implements Serializable {
     @NotNull
     @Size(min = 1, max = 100)
     @Column(name = "USERNAME")
+
     private String username;
     @Basic(optional = false)
-    @NotNull
-    @Size(min = 1, max = 20)
+    @Enumerated(EnumType.STRING)
     @Column(name = "STATUS")
-    private String status;
+    private MerchantStatus status;
     @Basic(optional = false)
     @NotNull
     @Column(name = "DATE_CREATED")
@@ -81,7 +82,7 @@ public class TblOrgUser implements Serializable {
     @Basic(optional = false)
     @NotNull
     @Column(name = "TARGET_ID")
-    private long targetId;
+    private Long targetId;
 
     public TblOrgUser() {
     }
@@ -90,7 +91,7 @@ public class TblOrgUser implements Serializable {
         this.id = id;
     }
 
-    public TblOrgUser(Long id, String fullname, String username, String status, LocalDateTime dateCreated, long createdByUser, String password, ERole role, ETargetType targetType, long targetId) {
+    public TblOrgUser(Long id, String fullname, String username, MerchantStatus status, LocalDateTime dateCreated, long createdByUser, String password, ERole role, ETargetType targetType, long targetId) {
         this.id = id;
         this.fullname = fullname;
         this.username = username;
@@ -127,11 +128,11 @@ public class TblOrgUser implements Serializable {
         this.username = username;
     }
 
-    public String getStatus() {
+    public MerchantStatus getStatus() {
         return status;
     }
 
-    public void setStatus(String status) {
+    public void setStatus(MerchantStatus status) {
         this.status = status;
     }
 

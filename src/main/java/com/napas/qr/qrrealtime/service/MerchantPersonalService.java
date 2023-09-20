@@ -63,6 +63,9 @@ public class MerchantPersonalService extends BaseService {
         TblMerchantPersonal tblMerchantPersonal = new TblMerchantPersonal();
         if (getUserDetails().getTargetType() == ETargetType.MASTER) {
             tblMerchantPersonal.setName(input.getName());
+            if (input.getMerchantCode().length()>5){
+                return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(new MessageResponse("MerchantCode không được quá 5 kí tự"));
+            }
             if (merchantPersonalRepository.existsByMerchantCode(input.getMerchantCode())) {
                 return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(new MessageResponse("MerchantCode đã tồn tại"));
             }
@@ -113,6 +116,7 @@ public class MerchantPersonalService extends BaseService {
         tblMerchantPersonal.setTblSettleBank(settleBank);
         tblMerchantPersonal.setCreditorAccount(input.getCreditorAccount());
         tblMerchantPersonal.setModifiedByUser(getUserId());
+        tblMerchantPersonal.setPhoneNumber(input.getPhoneNumber());
         tblMerchantPersonal.setDateModified(new Date());
         tblMerchantPersonal.setStatus(MerchantStatus.APPROVED);
         tblMerchantPersonal.setPaymentAcceptanceStatus(PaymentAcceptStatus.READY);
@@ -131,7 +135,6 @@ public class MerchantPersonalService extends BaseService {
     public ResponseEntity<?> merchantDetail(Long id) {
 
         TblMerchantPersonal merchant = merchantPersonalRepository.findById(id).orElse(null);
-
 
         if (merchant == null) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body(new MessageResponse("Không tồn tại Merchant cá nhân này"));

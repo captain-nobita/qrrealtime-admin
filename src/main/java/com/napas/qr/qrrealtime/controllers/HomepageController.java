@@ -18,8 +18,8 @@ import org.springframework.web.bind.annotation.RequestMapping;
 @Controller
 public class HomepageController {
 
-    @RequestMapping(value = {"/", "/{x:[\\w\\-]+}", "/{x:^(?!api$).*$}/**/{y:[\\w\\-]+}"})
+    @RequestMapping(value = {"/mngweb/", "/{x:[\\w\\-]+}", "/{x:^(?!api$).*$}/**/{y:[\\w\\-]+}"})
     public String getIndex(HttpServletRequest request) {
-        return "/index.html";
+        return "/mngweb/index.html";
     }
 }

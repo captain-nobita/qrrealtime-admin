@@ -6,9 +6,13 @@ import java.util.stream.Collectors;
 import javax.validation.Valid;
 
 import com.napas.qr.qrrealtime.define.ETargetType;
+import com.napas.qr.qrrealtime.define.MerchantStatus;
 import com.napas.qr.qrrealtime.entity.*;
+import com.napas.qr.qrrealtime.payload.response.MessageResponse;
+import com.napas.qr.qrrealtime.repository.UserRepository;
 import com.napas.qr.qrrealtime.security.services.UserDetailsImpl;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -30,7 +34,7 @@ import org.springframework.security.core.context.SecurityContextHolder;
 
 @CrossOrigin(origins = "*", maxAge = 3600)
 @RestController
-@RequestMapping("/api/auth")
+@RequestMapping(value = "/mngweb/api/auth",produces = "application/json")
 public class AuthController {
 
     private Logger logger = LoggerFactory.getLogger(this.getClass().getName());
@@ -41,48 +45,56 @@ public class AuthController {
     @Autowired
     JwtUtils jwtUtils;
 
+    @Autowired
+    private UserRepository userRepository;
+
     @PostMapping("/signin")
     public ResponseEntity<?> authenticateUser(HttpServletRequest request,
                                               @Valid @RequestBody LoginRequest loginRequest) {
 
-        Authentication authentication = authenticationManager.authenticate(
-                new UsernamePasswordAuthenticationToken(loginRequest.getUsername(), loginRequest.getPassword()));
 
-        SecurityContextHolder.getContext().setAuthentication(authentication);
-        String jwt = jwtUtils.generateJwtToken(authentication);
+        TblOrgUser user = userRepository.findByUsername(loginRequest.getUsername()).orElse(null);
+        if (user.getStatus().equals(MerchantStatus.APPROVED)){
+            Authentication authentication = authenticationManager.authenticate(
+                    new UsernamePasswordAuthenticationToken(loginRequest.getUsername(), loginRequest.getPassword()));
 
-        UserDetailsImpl userDetails = (UserDetailsImpl) authentication.getPrincipal();
-        List<String> roles = userDetails.getAuthorities().stream()
-                .map(item -> item.getAuthority())
-                .collect(Collectors.toList());
+            SecurityContextHolder.getContext().setAuthentication(authentication);
+            String jwt = jwtUtils.generateJwtToken(authentication);
 
-        TblMasterMerchant masterMerchant = userDetails.getMasterMerchant();
-        TblMerchantCorporate merchantCorporate = userDetails.getMerchant();
-        TblMerchantBranch merchantBranch = userDetails.getBranch();
-        TblMerchantCashier cashier = userDetails.getCashier();
-        TblMerchantPersonal personal = userDetails.getMerchantPersonal();
+            UserDetailsImpl userDetails = (UserDetailsImpl) authentication.getPrincipal();
+            List<String> roles = userDetails.getAuthorities().stream()
+                    .map(item -> item.getAuthority())
+                    .collect(Collectors.toList());
 
-        String masterMerchantName = masterMerchant.getMmName();
+            TblMasterMerchant masterMerchant = userDetails.getMasterMerchant();
+            TblMerchantCorporate merchantCorporate = userDetails.getMerchant();
+            TblMerchantBranch merchantBranch = userDetails.getBranch();
+            TblMerchantCashier cashier = userDetails.getCashier();
+            TblMerchantPersonal personal = userDetails.getMerchantPersonal();
 
-        String branchName = merchantBranch != null ? merchantBranch.getBranchName() : "";
-        String cashierName = cashier != null ? cashier.getCashierCode() : "";
+            String masterMerchantName = masterMerchant.getMmName();
 
-        String merchantName = null;
-        if (userDetails.getTargetType() != ETargetType.MASTER) {
-            merchantName = merchantCorporate != null ? merchantCorporate.getName() : personal.getName();
+            String branchName = merchantBranch != null ? merchantBranch.getBranchName() : "";
+            String cashierName = cashier != null ? cashier.getCashierCode() : "";
+
+            String merchantName = null;
+            if (userDetails.getTargetType() != ETargetType.MASTER) {
+                merchantName = merchantCorporate != null ? merchantCorporate.getName() : personal.getName();
+            }
+
+            return ResponseEntity.ok(new JwtResponse(jwt,
+                    userDetails.getId(),
+                    userDetails.getUsername(),
+                    userDetails.getUsername(),
+                    roles,
+                    userDetails.getTargetType(),
+                    userDetails.getTargetId(),
+                    masterMerchantName,
+                    merchantName,
+                    branchName,
+                    cashierName
+            ));
         }
-
-        return ResponseEntity.ok(new JwtResponse(jwt,
-                userDetails.getId(),
-                userDetails.getUsername(),
-                userDetails.getUsername(),
-                roles,
-                userDetails.getTargetType(),
-                userDetails.getTargetId(),
-                masterMerchantName,
-                merchantName,
-                branchName,
-                cashierName
-        ));
+        return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(new MessageResponse("Bạn chưa có quyền login hệ thống này"));
     }
 }

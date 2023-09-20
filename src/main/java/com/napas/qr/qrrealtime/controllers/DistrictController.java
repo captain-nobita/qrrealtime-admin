@@ -13,7 +13,7 @@ import javax.servlet.http.HttpServletRequest;
 import java.util.List;
 
 @RestController
-@RequestMapping("/api/district")
+@RequestMapping(value = "/mngweb/api/district", produces = "application/json")
 public class DistrictController {
 
     @Autowired

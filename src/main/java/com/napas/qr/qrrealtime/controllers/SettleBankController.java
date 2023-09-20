@@ -13,7 +13,7 @@ import org.springframework.web.bind.annotation.RestController;
 import java.util.List;
 
 @RestController
-@RequestMapping("/api/settleBank")
+@RequestMapping(value = "/mngweb/api/settleBank", produces = "application/json")
 public class SettleBankController {
 
     @Autowired

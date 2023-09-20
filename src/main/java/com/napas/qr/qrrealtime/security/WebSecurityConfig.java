@@ -59,19 +59,19 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
                 .exceptionHandling().authenticationEntryPoint(unauthorizedHandler).and()
                 .sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS).and()
                 .authorizeRequests()
-                .antMatchers("/api/auth/**").permitAll()
-                .antMatchers("/api/role/**").permitAll()
-                .antMatchers("/api/test/**").permitAll()
-                .antMatchers("/api/dictionary/**").permitAll()
-                .antMatchers("/api/reportoffline/**").permitAll()
-                .antMatchers("/api/portal/captcha").permitAll()
+                .antMatchers("/mngweb/api/auth/**").permitAll()
+                .antMatchers("/mngweb/api/role/**").permitAll()
+                .antMatchers("/mngweb/api/test/**").permitAll()
+                .antMatchers("/mngweb/api/dictionary/**").permitAll()
+                .antMatchers("/mngweb/api/reportoffline/**").permitAll()
+                .antMatchers("/mngweb/api/portal/captcha").permitAll()
                 .antMatchers(
-                        "/static/**",
-                        "/images/**",
-                        "/*.svg", "/*.ico", "/*.eot", "/*.woff2",
-                        "/*.ttf", "/*.woff", "/*.html", "/*.js", "/*.json",
-                        "/*.map", "/*.bundle.*",
-                        "/index.html", "/", "/home/**", "/dashboard/**", "/admin/**", "/login").permitAll()
+                        "/mngweb/static/**",
+                        "/mngweb/images/**",
+                        "/mngweb/*.svg", "/mngweb/*.ico", "/mngweb/*.eot", "/mngweb/*.woff2",
+                        "/mngweb/*.ttf", "/mngweb/*.woff", "/mngweb/*.html", "/mngweb/*.js", "/mngweb/*.json",
+                        "/mngweb/*.map", "/mngweb/*.bundle.*",
+                        "/mngweb/index.html", "/mngweb/", "/mngweb/home/**", "/mngweb/dashboard/**", "/mngweb/admin/**", "/mngweb/login").permitAll()
                 .anyRequest().authenticated();
 
         http.addFilterBefore(authenticationJwtTokenFilter(), UsernamePasswordAuthenticationFilter.class);

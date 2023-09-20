@@ -16,7 +16,7 @@ import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 
 @RestController
-@RequestMapping(value = "/api/portal/captcha",produces = "application/json")
+@RequestMapping(value = "/mngweb/api/portal/captcha",produces = "application/json")
 @PreAuthorize("permitAll()")
 public class CaptchaController {
     public static String SessionCaptchaAnswer = "captchaAnswer";

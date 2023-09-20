@@ -26,7 +26,7 @@ import org.springframework.web.bind.annotation.ResponseStatus;
  */
 @CrossOrigin(origins = "*", maxAge = 3600)
 @RestController
-@RequestMapping("/api/user")
+@RequestMapping(value = "/mngweb/api/user", produces = "application/json")
 public class UserController {
 
     private Logger logger = LoggerFactory.getLogger(this.getClass().getName());

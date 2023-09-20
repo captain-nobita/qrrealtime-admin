@@ -22,7 +22,7 @@ import java.security.Principal;
 import java.security.SignatureException;
 
 @RestController
-@RequestMapping("/api/merchantPersonal")
+@RequestMapping(value = "/mngweb/api/merchantPersonal", produces = "application/json")
 public class MerchantPersonalController {
 
     @Autowired

@@ -12,7 +12,7 @@ import javax.servlet.http.HttpServletRequest;
 import java.util.List;
 
 @RestController
-@RequestMapping("/api/provice")
+@RequestMapping(value = "/mngweb/api/provice", produces = "application/json")
 public class ProviceController {
 
     @Autowired

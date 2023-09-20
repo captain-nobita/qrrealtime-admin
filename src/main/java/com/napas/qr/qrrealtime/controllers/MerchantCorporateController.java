@@ -16,7 +16,7 @@ import org.springframework.web.bind.annotation.*;
 import javax.servlet.http.HttpServletRequest;
 
 @RestController
-@RequestMapping("/api/merchantCorporate")
+@RequestMapping(value = "/mngweb/api/merchantCorporate", produces = "application/json")
 public class MerchantCorporateController {
     private Logger logger = LoggerFactory.getLogger(this.getClass().getName());
 
