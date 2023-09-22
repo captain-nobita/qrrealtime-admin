@@ -1,7 +1,6 @@
 package com.napas.qr.qrrealtime.repository;
 
 import com.napas.qr.qrrealtime.define.MerchantStatus;
-import com.napas.qr.qrrealtime.entity.TblMerchantCorporate;
 import com.napas.qr.qrrealtime.entity.TblMerchantPersonal;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -19,9 +18,11 @@ public interface MerchantPersonalRepository extends JpaRepository<TblMerchantPer
             " (T.name like %:name% or :name is null) " +
             " AND (T.status=:status or :status is null) " +
             " AND(T.merchantCode=:merchantCode or :merchantCode is null)" +
+            " AND(T.tblMasterMerchant.id = :id or :id is null)" +
             " AND(T.status <> 'DELETED') ")
     Page<TblMerchantPersonal> search(Pageable pageable,
                                       @Param("name") String name,
                                       @Param("status") MerchantStatus status,
-                                      @Param("merchantCode") String merchantCode);
+                                      @Param("merchantCode") String merchantCode,
+                                     @Param("id") Long id);
 }

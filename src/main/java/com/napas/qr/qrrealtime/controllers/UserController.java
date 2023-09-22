@@ -5,20 +5,24 @@
  */
 package com.napas.qr.qrrealtime.controllers;
 
+import com.napas.qr.qrrealtime.define.MerchantStatus;
+import com.napas.qr.qrrealtime.models.CreateMerchantPersonalDTO;
+import com.napas.qr.qrrealtime.models.CreatedUserDTO;
 import com.napas.qr.qrrealtime.models.UserDetail;
 import com.napas.qr.qrrealtime.service.UserService;
-import org.springframework.web.bind.annotation.RestController;
-import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
+import org.springframework.data.web.PageableDefault;
+import org.springframework.data.web.SortDefault;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.access.prepost.PreAuthorize;
-import org.springframework.web.bind.annotation.CrossOrigin;
-import org.springframework.web.bind.annotation.ExceptionHandler;
-import org.springframework.web.bind.annotation.ResponseStatus;
+
+import javax.servlet.http.HttpServletRequest;
 
 /**
  *
@@ -44,5 +48,25 @@ public class UserController {
     @ResponseStatus(value = HttpStatus.INTERNAL_SERVER_ERROR, reason = "Error message")
     public void handleError() {
     }
+    @GetMapping("/search")
+    public ResponseEntity<?> search(HttpServletRequest request,
+                                    @PageableDefault( page = 0, size = 5) @SortDefault.SortDefaults({
+                                            @SortDefault(sort = "id", direction = Sort.Direction.DESC)}) Pageable paging,
+                                    @RequestParam(name = "fullname", required = false) String fullname,
+                                    @RequestParam(name = "status", required = false) MerchantStatus status,
+                                    @RequestParam(name = "email", required = false) String email
+    ) {
+        return userService.search(paging,fullname, status, email);
+    }
+
+    @PostMapping()
+    public ResponseEntity<?>post(@RequestBody CreatedUserDTO input){
+        return userService.post(input);
+    }
+    @DeleteMapping("/{id}")
+    public ResponseEntity<?> delete(@PathVariable Long id) {
+        return userService.delete(id);
+    }
+
 
 }

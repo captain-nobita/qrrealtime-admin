@@ -1,9 +1,6 @@
 package com.napas.qr.qrrealtime.service;
 
-import com.napas.qr.qrrealtime.define.EBranchAccountSettledType;
-import com.napas.qr.qrrealtime.define.ETargetType;
-import com.napas.qr.qrrealtime.define.MerchantStatus;
-import com.napas.qr.qrrealtime.define.PaymentAcceptStatus;
+import com.napas.qr.qrrealtime.define.*;
 import com.napas.qr.qrrealtime.entity.*;
 import com.napas.qr.qrrealtime.models.CreatedMerchantCorporateDTO;
 import com.napas.qr.qrrealtime.models.TblMerchantCorporateDTO;
@@ -52,13 +49,13 @@ public class MerchantCorporateService extends BaseService {
     }
 
     public ResponseEntity<?> search(Pageable paging, String name, MerchantStatus status, String merchantCode) {
-        if (getUserDetails().getMasterMerchant().getMmName().equals("NAPAS")){
-            Page<TblMerchantCorporate> dbResult  = merchantCorporateRepository.search(paging,name,status,merchantCode, null);
+        if (getUserDetails().getTargetType().equals(ETargetType.MERCHANT) && getERole().equals(ERole.ADMIN) || getUserDetails().getTargetType().equals(ETargetType.MASTER)){
+            TblMasterMerchant masterMerchant = getUserDetails().getMasterMerchant();
+            Page<TblMerchantCorporate> dbResult  = merchantCorporateRepository.search(paging,name,status,merchantCode, masterMerchant.getId());
             return ResponseEntity.ok(dbResult.map(entity -> fromEntity(entity)));
+        }else {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(new MessageResponse("Bạn không có quyền xem Merchant này"));
         }
-        TblMasterMerchant masterMerchant = getUserDetails().getMasterMerchant();
-        Page<TblMerchantCorporate> dbResult  = merchantCorporateRepository.search(paging,name,status,merchantCode, masterMerchant.getId());
-        return ResponseEntity.ok(dbResult.map(entity -> fromEntity(entity)));
     }
 
     public ResponseEntity<?> post(CreatedMerchantCorporateDTO input) {
@@ -72,8 +69,8 @@ public class MerchantCorporateService extends BaseService {
             if (merchantCorporateRepository.existsByMerchantCode(input.getMerchantCode())) {
                 return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(new MessageResponse("MerchantCode đã tồn tại"));
             }
-            if (input.getMerchantCode().length()>3){
-                return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(new MessageResponse("Bạn đã nhập MerchantCode quá số kí tự cho phép"));
+            if (input.getMerchantCode().length()>3 || input.getMerchantCode().length()<3){
+                return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(new MessageResponse("MerchantCode là chuỗi gồm 3 kí tự"));
             }
             tblMerchantCorporate.setMerchantCode(input.getMerchantCode());
             TblDistrict district = districtRepository.findById(input.getDistrictId()).orElse(null);
@@ -139,10 +136,13 @@ public class MerchantCorporateService extends BaseService {
         }
     }
     public ResponseEntity<?> delete(Long id) {
-        TblMerchantCorporate merchant = merchantCorporateRepository.findById(id).orElse(null);
-        merchant.setStatus(MerchantStatus.DELETED);
-        merchantCorporateRepository.save(merchant);
-        return ResponseEntity.ok(new MessageResponse("Delete merchant"));
+        if (getUserDetails().getTargetType() == ETargetType.MASTER) {
+            TblMerchantCorporate merchant = merchantCorporateRepository.findById(id).orElse(null);
+            merchant.setStatus(MerchantStatus.DELETED);
+            merchantCorporateRepository.save(merchant);
+            return ResponseEntity.ok(new MessageResponse("Delete merchant"));
+        }
+        return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(new MessageResponse("Bạn không có quyền xóa Merchant này"));
     }
 
     public ResponseEntity<?> merchantDetail(Long id) {

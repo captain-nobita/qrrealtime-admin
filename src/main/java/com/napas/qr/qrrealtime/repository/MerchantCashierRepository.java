@@ -13,6 +13,8 @@ import org.springframework.stereotype.Repository;
 @Repository
 public interface MerchantCashierRepository extends JpaRepository<TblMerchantCashier, Long> {
 
+    Boolean existsByCashierCode(String CashierCode);
+
     @Query("SELECT T FROM TblMerchantCashier T WHERE " +
             " (T.cashierCode like %:cashierCode% or :cashierCode is null) " +
             " AND (T.status= :status or :status is null) " +

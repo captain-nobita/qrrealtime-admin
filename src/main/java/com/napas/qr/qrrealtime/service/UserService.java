@@ -5,10 +5,14 @@
  */
 package com.napas.qr.qrrealtime.service;
 
+import com.napas.qr.qrrealtime.define.ERole;
+import com.napas.qr.qrrealtime.define.ETargetType;
 import com.napas.qr.qrrealtime.define.MerchantStatus;
 import com.napas.qr.qrrealtime.entity.TblMerchantBranch;
 import com.napas.qr.qrrealtime.entity.TblMerchantCashier;
+import com.napas.qr.qrrealtime.entity.TblMerchantPersonal;
 import com.napas.qr.qrrealtime.entity.TblOrgUser;
+import com.napas.qr.qrrealtime.models.CreatedUserDTO;
 import com.napas.qr.qrrealtime.models.OrgUserDTO;
 import com.napas.qr.qrrealtime.models.TblMerchantBranchDTO;
 import com.napas.qr.qrrealtime.models.UserDetail;
@@ -27,8 +31,10 @@ import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDateTime;
+import java.util.Date;
+
 /**
- *
  * @author huynx
  */
 @Service
@@ -61,19 +67,125 @@ public class UserService extends BaseService {
 
     public UserDetail getByUsername(String userName) {
         TblOrgUser user = userRepository.findByUsername(userName).orElseThrow();
-        return new UserDetail(user.getId(), user.getUsername(), 
+        return new UserDetail(user.getId(), user.getUsername(),
                 user.getDateCreated().toString(), user.getDateModified().toString(), user.getRole(), user.getFullname());
     }
 
     public ResponseEntity<?> search(Pageable paging, String fullname, MerchantStatus status, String username) {
 
-        if (getUserDetails().getTargetType().equals("MASTER") && getERole().equals("ADMIN")) {
+        if (getUserDetails().getTargetType().equals(ETargetType.MASTER) && getERole().equals(ERole.ADMIN)) {
 
-            Page<TblOrgUser> dbResult = userRepository.searchAdmin(paging, fullname, status,username);
+            Page<TblOrgUser> dbResult = userRepository.searchAdmin(paging, fullname, status, username);
+            return ResponseEntity.ok(dbResult.map(entity -> fromEntity(entity)));
+        } else {
+            Page<TblOrgUser> dbResult = userRepository.search(paging, fullname, status, username, getUserDetails().getTargetType(), getTargetId());
             return ResponseEntity.ok(dbResult.map(entity -> fromEntity(entity)));
         }
-        Page<TblOrgUser> dbResult = userRepository.search(paging, fullname, status,username,getUserDetails().getTargetType(), getTargetId());
-        return ResponseEntity.ok(dbResult.map(entity -> fromEntity(entity)));
 
+
+    }
+
+    public ResponseEntity<?> post(CreatedUserDTO input) {
+
+        if (getUserDetails().getTargetType().equals(ETargetType.PERSONAL) && getERole().equals(ERole.ADMIN)) {
+            TblOrgUser orgUser = new TblOrgUser();
+            orgUser.setFullname(input.getFullname());
+            orgUser.setCreatedByUser(getUserId());
+            orgUser.setDateCreated(LocalDateTime.now());
+            orgUser.setPassword(encoder.encode(input.getPassword()));
+            orgUser.setUsername(input.getEmail());
+            orgUser.setStatus(MerchantStatus.APPROVED);
+            orgUser.setRole(input.getRole());
+            orgUser.setTargetId(getTargetId());
+            orgUser.setTargetType(ETargetType.PERSONAL);
+            TblOrgUser saveData = userRepository.save(orgUser);
+
+            return ResponseEntity.ok(fromEntity(saveData));
+        } else if (getUserDetails().getTargetType().equals(ETargetType.MASTER) && getERole().equals(ERole.ADMIN)) {
+            TblOrgUser orgUser = new TblOrgUser();
+            orgUser.setFullname(input.getFullname());
+            orgUser.setCreatedByUser(getUserId());
+            orgUser.setDateCreated(LocalDateTime.now());
+            orgUser.setPassword(encoder.encode(input.getPassword()));
+            orgUser.setUsername(input.getEmail());
+            orgUser.setStatus(MerchantStatus.APPROVED);
+            orgUser.setRole(input.getRole());
+            orgUser.setTargetId(getTargetId());
+            orgUser.setTargetType(input.getTargetType());
+            TblOrgUser saveData = userRepository.save(orgUser);
+            return ResponseEntity.ok(fromEntity(saveData));
+        }
+        else if (getUserDetails().getTargetType().equals(ETargetType.MERCHANT) && getERole().equals(ERole.ADMIN)) {
+            TblOrgUser orgUser = new TblOrgUser();
+            orgUser.setFullname(input.getFullname());
+            orgUser.setCreatedByUser(getUserId());
+            orgUser.setDateCreated(LocalDateTime.now());
+            orgUser.setPassword(encoder.encode(input.getPassword()));
+            orgUser.setUsername(input.getEmail());
+            orgUser.setStatus(MerchantStatus.APPROVED);
+            orgUser.setRole(input.getRole());
+            orgUser.setTargetId(getTargetId());
+            orgUser.setTargetType(input.getTargetType());
+            TblOrgUser saveData = userRepository.save(orgUser);
+            return ResponseEntity.ok(fromEntity(saveData));
+        } else if (getUserDetails().getTargetType().equals(ETargetType.BRANCH) && getERole().equals(ERole.ADMIN)) {
+            TblOrgUser orgUser = new TblOrgUser();
+            orgUser.setFullname(input.getFullname());
+            orgUser.setCreatedByUser(getUserId());
+            orgUser.setDateCreated(LocalDateTime.now());
+            orgUser.setPassword(encoder.encode(input.getPassword()));
+            orgUser.setUsername(input.getEmail());
+            orgUser.setStatus(MerchantStatus.APPROVED);
+            orgUser.setRole(input.getRole());
+            orgUser.setTargetId(getTargetId());
+            orgUser.setTargetType(input.getTargetType());
+            TblOrgUser saveData = userRepository.save(orgUser);
+            return ResponseEntity.ok(fromEntity(saveData));
+        } else {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(new MessageResponse("Bạn chưa có quyền tạo hệ thống này"));
+
+        }
+    }
+
+    public ResponseEntity<?> delete(Long id) {
+        TblOrgUser tblOrgUser = userRepository.findById(id).orElse(null);
+
+        if (tblOrgUser.getTargetType().equals(ETargetType.MERCHANT)) {
+            if (getUserDetails().getTargetType() == ETargetType.MASTER && getERole().equals(ERole.ADMIN) || getUserDetails().getTargetType() == ETargetType.MERCHANT && getERole().equals(ERole.ADMIN)) {
+                tblOrgUser.setStatus(MerchantStatus.DELETED);
+                tblOrgUser.setModifiedByUser(getUserId());
+                tblOrgUser.setDateModified(LocalDateTime.now());
+                TblOrgUser saveData = userRepository.save(tblOrgUser);
+                return ResponseEntity.ok(new MessageResponse("Delete Suscess"));
+
+            }
+        } else if (tblOrgUser.getTargetType().equals(ETargetType.BRANCH)) {
+            if (getUserDetails().getTargetType() == ETargetType.MERCHANT && getERole().equals(ERole.ADMIN) || getUserDetails().getTargetType() == ETargetType.BRANCH && getERole().equals(ERole.ADMIN)) {
+                tblOrgUser.setStatus(MerchantStatus.DELETED);
+                tblOrgUser.setModifiedByUser(getUserId());
+                tblOrgUser.setDateModified(LocalDateTime.now());
+                userRepository.save(tblOrgUser);
+                return ResponseEntity.ok(new MessageResponse("Delete Suscess"));
+
+
+            }
+        } else if (tblOrgUser.getTargetType().equals(ETargetType.CASHIER)) {
+            if (getUserDetails().getTargetType() == ETargetType.BRANCH && getERole().equals(ERole.ADMIN)) {
+                tblOrgUser.setStatus(MerchantStatus.DELETED);
+                tblOrgUser.setModifiedByUser(getUserId());
+                tblOrgUser.setDateModified(LocalDateTime.now());
+                userRepository.save(tblOrgUser);
+                return ResponseEntity.ok(new MessageResponse("Delete Suscess"));
+            }
+        } else if (tblOrgUser.getTargetType().equals(ETargetType.PERSONAL)) {
+            if (getUserDetails().getTargetType() == ETargetType.PERSONAL && getERole().equals(ERole.ADMIN) || getUserDetails().getTargetType() == ETargetType.MASTER && getERole().equals(ERole.ADMIN)) {
+                tblOrgUser.setStatus(MerchantStatus.DELETED);
+                tblOrgUser.setModifiedByUser(getUserId());
+                tblOrgUser.setDateModified(LocalDateTime.now());
+                userRepository.save(tblOrgUser);
+                return ResponseEntity.ok(new MessageResponse("Delete Suscess"));
+
+            }
+        }  return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(new MessageResponse("Bạn chưa có quyền xóa hệ thống này"));
     }
 }

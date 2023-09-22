@@ -33,6 +33,8 @@ public class MerchantCashierService extends BaseService {
 
     private MerchantCashierDTO fromEntity(TblMerchantCashier entity) {
         MerchantCashierDTO dto = modelMapper.map(entity, MerchantCashierDTO.class);
+        dto.setBranchName(entity.getTblMerchantBranch().getBranchName());
+        dto.setMerchantName(entity.getTblMerchantBranch().getTblMerchantCorporate().getName());
         return dto;
     }
 
@@ -40,8 +42,10 @@ public class MerchantCashierService extends BaseService {
 
         TblMerchantBranch branch = getUserDetails().getBranch();
         if (branch == null) {
-            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(new MessageResponse("Bạn không có quyền xem Danh sách Cashier này"));
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(new MessageResponse("Bạn không có quyền xem Danh sách Cashier này"));
 
+        } else if (branch.getStatus().equals(MerchantStatus.DELETED)){
+            return null;
         }
         TblMerchantBranch merchantBranch = merchantBranchRepository.findById(branch.getId()).orElse(null);
         Page<TblMerchantCashier> dbResult = merchantCashierRepository.search(paging, cashierCode, status, merchantBranch.getId());
@@ -52,9 +56,12 @@ public class MerchantCashierService extends BaseService {
 
         TblMerchantCashier tblMerchantCashier = new TblMerchantCashier();
 
-        if (getUserDetails().getTargetType() == ETargetType.BRANCH && getERole().equals(ERole.ADMIN)) {
+        if (getUserDetails().getTargetType() == ETargetType.BRANCH && getERole().equals(ERole.ADMIN) && getUserDetails().getBranch().getStatus().equals(MerchantStatus.APPROVED)) {
 
             TblMerchantBranch branch = getUserDetails().getBranch();
+            if (merchantCashierRepository.existsByCashierCode(input.getCashierCode())) {
+                return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(new MessageResponse("CashierCode đã tồn tại"));
+            }
 
             tblMerchantCashier.setCashierCode(input.getCashierCode());
             tblMerchantCashier.setTblMerchantBranch(branch);
@@ -66,7 +73,7 @@ public class MerchantCashierService extends BaseService {
 
             return ResponseEntity.ok(fromEntity(savedData));
         } else {
-            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(new MessageResponse("Bạn không có quyền tạo Merchant này"));
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(new MessageResponse("Bạn không có quyền tạo Merchant này"));
 
         }
     }
@@ -75,7 +82,7 @@ public class MerchantCashierService extends BaseService {
 
         TblMerchantCashier tblMerchantCashier = merchantCashierRepository.findById(id).orElse(null);
 
-        if (getUserDetails().getTargetType() == ETargetType.BRANCH && getERole().equals(ERole.ADMIN)) {
+        if (getUserDetails().getTargetType() == ETargetType.BRANCH && getERole().equals(ERole.ADMIN)&& getUserDetails().getBranch().getStatus().equals(MerchantStatus.APPROVED)) {
 
             TblMerchantBranch branch = getUserDetails().getBranch();
 
@@ -89,20 +96,20 @@ public class MerchantCashierService extends BaseService {
 
             return ResponseEntity.ok(fromEntity(savedData));
         } else {
-            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(new MessageResponse("Bạn không có quyền tạo Merchant này"));
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(new MessageResponse("Bạn không có quyền tạo Merchant này"));
 
         }
     }
 
     public ResponseEntity<?> delete(Long id) {
-        if (getUserDetails().getTargetType() == ETargetType.BRANCH && getERole().equals(ERole.ADMIN)) {
+        if (getUserDetails().getTargetType() == ETargetType.BRANCH && getERole().equals(ERole.ADMIN)&& getUserDetails().getBranch().getStatus().equals(MerchantStatus.APPROVED)) {
             TblMerchantCashier cashier = merchantCashierRepository.findById(id).orElse(null);
             cashier.setStatus(MerchantStatus.DELETED);
             cashier.setDateModified(new Date());
             merchantCashierRepository.save(cashier);
             return ResponseEntity.ok(new MessageResponse("Delete merchant"));
         } else {
-            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(new MessageResponse("Bạn không có quyền tạo Merchant này"));
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(new MessageResponse("Bạn không có quyền tạo Merchant này"));
 
         }
     }

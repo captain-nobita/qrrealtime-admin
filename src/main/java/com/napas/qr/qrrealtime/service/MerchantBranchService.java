@@ -48,12 +48,12 @@ public class MerchantBranchService extends BaseService {
 
     public ResponseEntity<?> search(Pageable paging, String branchName, MerchantStatus status, String branchCode) {
         TblMerchantCorporate merchantCorporate= getUserDetails().getMerchant();
-        if (getUserDetails().getMasterMerchant().getMmName().equals("NAPAS")){
-            Page<TblMerchantBranch> dbResult  = merchantBranchRepository.search(paging,branchName,status,branchCode,null);
+        TblMasterMerchant masterMerchant = getUserDetails().getMasterMerchant();
+        if (getUserDetails().getTargetType().equals(ETargetType.MERCHANT) ||getUserDetails().getTargetType().equals(ETargetType.BRANCH)&& getERole().equals(ERole.ADMIN)  ){
+            Page<TblMerchantBranch> dbResult  = merchantBranchRepository.search(paging,branchName,status,branchCode, merchantCorporate.getId(), masterMerchant.getId() );
             return ResponseEntity.ok(dbResult.map(entity -> fromEntity(entity)));
         }else {
-            Page<TblMerchantBranch> dbResult  = merchantBranchRepository.search(paging,branchName,status,branchCode, merchantCorporate.getId());
-            return ResponseEntity.ok(dbResult.map(entity -> fromEntity(entity)));
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(new MessageResponse("Bạn không có quyền truy cập danh sách này"));
         }
     }
 
@@ -64,7 +64,9 @@ public class MerchantBranchService extends BaseService {
         if (getUserDetails().getTargetType() == ETargetType.MERCHANT && getERole().equals(ERole.ADMIN)) {
 
             TblMerchantCorporate merchant = getUserDetails().getMerchant();
-
+            if (merchantBranchRepository.existsByBranchCode(input.getBranchCode())) {
+                return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(new MessageResponse("BranchCode đã tồn tại"));
+            }
             tblMerchantBranch.setBranchCode(input.getBranchCode());
             TblMerchantCorporate merchantCorporate = merchantCorporateRepository.findById(merchant.getId()).orElse(null);
 
@@ -74,7 +76,6 @@ public class MerchantBranchService extends BaseService {
             tblMerchantBranch.setCreatedByUser(getUserId());
             if (input.getSettleBankId() == null){
                 return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(new MessageResponse("Bạn chưa nhập ngân hàng thụ hưởng"));
-
             }
             TblSettleBank tblSettleBank = settleBankRepository.findById(input.getSettleBankId()).orElse(null);
             tblMerchantBranch.setTblSettleBank(tblSettleBank);
@@ -86,7 +87,7 @@ public class MerchantBranchService extends BaseService {
 
             return ResponseEntity.ok(fromEntity(savedData));
         } else {
-            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(new MessageResponse("Bạn không có quyền tạo Branch này"));
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(new MessageResponse("Bạn không có quyền tạo Branch này"));
 
         }
     }
@@ -102,7 +103,6 @@ public class MerchantBranchService extends BaseService {
             tblMerchantBranch.setDateModified(new Date());
             if (input.getSettleBankId() == null){
                 return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(new MessageResponse("Bạn chưa nhập ngân hàng thụ hưởng"));
-
             }
             TblSettleBank tblSettleBank = settleBankRepository.findById(input.getSettleBankId()).orElse(null);
             tblMerchantBranch.setTblSettleBank(tblSettleBank);
@@ -113,19 +113,19 @@ public class MerchantBranchService extends BaseService {
 
             return ResponseEntity.ok(fromEntity(savedData));
         } else {
-            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(new MessageResponse("Bạn không có quyền sửa Branch này"));
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(new MessageResponse("Bạn không có quyền sửa Branch này"));
 
         }
     }
     public ResponseEntity<?> delete(Long id) {
-        if (getUserDetails().getTargetType() == ETargetType.MERCHANT && getERole().equals(ERole.ADMIN)){
+        if (getUserDetails().getTargetType().equals(ETargetType.MERCHANT) || getUserDetails().getTargetType().equals(ETargetType.BRANCH) && getERole().equals(ERole.ADMIN) ){
             TblMerchantBranch merchant = merchantBranchRepository.findById(id).orElse(null);
             merchant.setStatus(MerchantStatus.DELETED);
             merchant.setDateModified(new Date());
             merchantBranchRepository.save(merchant);
             return ResponseEntity.ok(new MessageResponse("Delete merchant"));
         }else {
-            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(new MessageResponse("Bạn không có quyền xóa Branch này"));
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(new MessageResponse("Bạn không có quyền xóa Branch này"));
         }
     }
 }

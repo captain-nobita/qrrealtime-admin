@@ -65,6 +65,8 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
                 .antMatchers("/mngweb/api/dictionary/**").permitAll()
                 .antMatchers("/mngweb/api/reportoffline/**").permitAll()
                 .antMatchers("/mngweb/api/portal/captcha").permitAll()
+                .antMatchers("/mngweb/api/healthcheck").permitAll()
+                .antMatchers("/mngweb/images/napas.png").permitAll()
                 .antMatchers(
                         "/mngweb/static/**",
                         "/mngweb/images/**",

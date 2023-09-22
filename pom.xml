@@ -10,9 +10,9 @@
         <relativePath/> <!-- lookup parent from repository -->
     </parent>
     <groupId>com.napas.ach</groupId>
-    <artifactId>common-backend</artifactId>
+    <artifactId>qrrealtime-admin</artifactId>
     <version>1.0.0-${maven.build.timestamp}</version>
-    <name>common-backend</name>
+    <name>qrrealtime-admin</name>
     <description>Sample cho backend</description>
 
     <properties>
@@ -82,6 +82,13 @@
             <artifactId>simplecaptcha</artifactId>
             <version>1.2.2</version>
         </dependency>
+        <!-- https://mvnrepository.com/artifact/com.google.zxing/javase -->
+        <dependency>
+            <groupId>com.google.zxing</groupId>
+            <artifactId>javase</artifactId>
+            <version>3.3.0</version>
+        </dependency>
+
     </dependencies>
     <build>
         <finalName>${project.artifactId}</finalName>

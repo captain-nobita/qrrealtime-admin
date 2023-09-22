@@ -25,4 +25,8 @@ public class MerchantCashierDTO {
     private Long modifiedByUser;
 
     private Long  branchId;
+
+    private String branchName;
+
+    private String merchantName;
 }

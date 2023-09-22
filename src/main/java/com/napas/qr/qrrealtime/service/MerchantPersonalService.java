@@ -1,5 +1,6 @@
 package com.napas.qr.qrrealtime.service;
 
+import com.napas.qr.qrrealtime.define.ERole;
 import com.napas.qr.qrrealtime.define.ETargetType;
 import com.napas.qr.qrrealtime.define.MerchantStatus;
 import com.napas.qr.qrrealtime.define.PaymentAcceptStatus;
@@ -16,6 +17,7 @@ import com.napas.qr.qrrealtime.repository.MerchantPersonalRepository;
 import com.napas.qr.qrrealtime.repository.SettleBankRepository;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
@@ -39,6 +41,11 @@ public class MerchantPersonalService extends BaseService {
     @Autowired
     private DistrictRepository districtRepository;
 
+    @Value("${redirectPvCombank}")
+    private String redirectPvCombank;
+
+
+
     @Autowired
     private ModelMapper modelMapper;
 
@@ -54,17 +61,24 @@ public class MerchantPersonalService extends BaseService {
     }
 
     public ResponseEntity<?> search(Pageable paging, String name, MerchantStatus status, String merchantCode) {
-        Page<TblMerchantPersonal> dbResult = merchantPersonalRepository.search(paging, name, status, merchantCode);
-        return ResponseEntity.ok(dbResult.map(entity -> fromEntity(entity)));
+        if (getUserDetails().getTargetType().equals(ETargetType.MERCHANT) && getERole().equals(ERole.ADMIN) || getUserDetails().getTargetType().equals(ETargetType.MASTER) || getUserDetails().getTargetType().equals(ETargetType.PERSONAL)   ){
+            Page<TblMerchantPersonal> dbResult = merchantPersonalRepository.search(paging, name, status, merchantCode, getUserDetails().getMasterMerchant().getId());
+            return ResponseEntity.ok(dbResult.map(entity -> fromEntity(entity)));
+        }
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(new MessageResponse("Bạn không có quyền xem thông tin merchant này"));
     }
 
     public ResponseEntity<?> post(CreateMerchantPersonalDTO input) {
 
         TblMerchantPersonal tblMerchantPersonal = new TblMerchantPersonal();
-        if (getUserDetails().getTargetType() == ETargetType.MASTER) {
+        if (getUserDetails().getTargetType() == ETargetType.PERSONAL && getERole().equals(ERole.ADMIN) || getUserDetails().getTargetType() == ETargetType.MASTER && getERole().equals(ERole.ADMIN)) {
             tblMerchantPersonal.setName(input.getName());
-            if (input.getMerchantCode().length()>5){
-                return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(new MessageResponse("MerchantCode không được quá 5 kí tự"));
+            if (input.getMerchantCode().length()>5 ||input.getMerchantCode().length()<5 ){
+                return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(new MessageResponse("MerchantCode là chuỗi gồm 5 kí tự"));
+            }
+
+            if (merchantPersonalRepository.existsByMerchantCode(input.getMerchantCode())) {
+                return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(new MessageResponse("MerchantCode đã tồn tại"));
             }
             if (merchantPersonalRepository.existsByMerchantCode(input.getMerchantCode())) {
                 return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(new MessageResponse("MerchantCode đã tồn tại"));
@@ -105,32 +119,43 @@ public class MerchantPersonalService extends BaseService {
 
 
     public ResponseEntity<?>put(Long id, CreateMerchantPersonalDTO input){
-        TblMerchantPersonal tblMerchantPersonal =merchantPersonalRepository.findById(id).orElse(null);
-        tblMerchantPersonal.setName(input.getName());
-        TblDistrict district = districtRepository.findById(input.getDistrictId()).orElse(null);
-        tblMerchantPersonal.setTblDistrict(district);
-        tblMerchantPersonal.setAddressLine(input.getAddressLine());
-        tblMerchantPersonal.setOwnerName(input.getOwnerName());
-        tblMerchantPersonal.setEmailAddress(input.getEmailAddress());
-        TblSettleBank settleBank = settleBankRepository.findById(input.getSettleBankId()).orElse(null);
-        tblMerchantPersonal.setTblSettleBank(settleBank);
-        tblMerchantPersonal.setCreditorAccount(input.getCreditorAccount());
-        tblMerchantPersonal.setModifiedByUser(getUserId());
-        tblMerchantPersonal.setPhoneNumber(input.getPhoneNumber());
-        tblMerchantPersonal.setDateModified(new Date());
-        tblMerchantPersonal.setStatus(MerchantStatus.APPROVED);
-        tblMerchantPersonal.setPaymentAcceptanceStatus(PaymentAcceptStatus.READY);
+        if (getUserDetails().getTargetType() == ETargetType.PERSONAL && getERole().equals(ERole.ADMIN) || getUserDetails().getTargetType() == ETargetType.MASTER && getERole().equals(ERole.ADMIN)) {
+            TblMerchantPersonal tblMerchantPersonal =merchantPersonalRepository.findById(id).orElse(null);
+            tblMerchantPersonal.setName(input.getName());
+            TblDistrict district = districtRepository.findById(input.getDistrictId()).orElse(null);
+            tblMerchantPersonal.setTblDistrict(district);
+            tblMerchantPersonal.setAddressLine(input.getAddressLine());
+            tblMerchantPersonal.setOwnerName(input.getOwnerName());
+            tblMerchantPersonal.setEmailAddress(input.getEmailAddress());
+            TblSettleBank settleBank = settleBankRepository.findById(input.getSettleBankId()).orElse(null);
+            tblMerchantPersonal.setTblSettleBank(settleBank);
+            tblMerchantPersonal.setCreditorAccount(input.getCreditorAccount());
+            tblMerchantPersonal.setModifiedByUser(getUserId());
+            tblMerchantPersonal.setPhoneNumber(input.getPhoneNumber());
+            tblMerchantPersonal.setDateModified(new Date());
+            tblMerchantPersonal.setStatus(MerchantStatus.APPROVED);
+            tblMerchantPersonal.setPaymentAcceptanceStatus(PaymentAcceptStatus.READY);
 
-        TblMerchantPersonal savedData = merchantPersonalRepository.save(tblMerchantPersonal);
-        return ResponseEntity.ok(fromEntity(savedData));
+            TblMerchantPersonal savedData = merchantPersonalRepository.save(tblMerchantPersonal);
+            return ResponseEntity.ok(fromEntity(savedData));
+        }else {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(new MessageResponse("Bạn không có quyền Sửa Merchant này"));
+
+        }
+
     }
 
 
     public ResponseEntity<?> delete(Long id) {
-        TblMerchantPersonal merchant = merchantPersonalRepository.findById(id).orElse(null);
+        if (getUserDetails().getTargetType() == ETargetType.PERSONAL && getERole().equals(ERole.ADMIN) || getUserDetails().getTargetType() == ETargetType.MASTER && getERole().equals(ERole.ADMIN)) {
+            TblMerchantPersonal merchant = merchantPersonalRepository.findById(id).orElse(null);
             merchant.setStatus(MerchantStatus.DELETED);
             merchantPersonalRepository.save(merchant);
             return ResponseEntity.ok(new MessageResponse("Delete merchant"));
+        }else {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(new MessageResponse("Bạn không có quyền Xóa Merchant này"));
+
+        }
     }
     public ResponseEntity<?> merchantDetail(Long id) {
 
@@ -140,5 +165,16 @@ public class MerchantPersonalService extends BaseService {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body(new MessageResponse("Không tồn tại Merchant cá nhân này"));
         }
         return ResponseEntity.ok(fromEntity(merchant));
+    }
+
+    public ResponseEntity<?>getPatch(){
+
+        return ResponseEntity.ok(redirectPvCombank);
+    }
+
+    public ResponseEntity<?>dataQr(Long id){
+        TblMerchantPersonal merchantPersonal = merchantPersonalRepository.findById(id).orElse(null);
+        String data = merchantPersonal.getTblSettleBank().getBankReceiveCode()+merchantPersonal.getTblMasterMerchant().getMmCode()+"000"+merchantPersonal.getMerchantCode() ;
+        return ResponseEntity.ok(data);
     }
 }

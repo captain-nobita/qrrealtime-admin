@@ -54,6 +54,9 @@ public class AuthController {
 
 
         TblOrgUser user = userRepository.findByUsername(loginRequest.getUsername()).orElse(null);
+        if (user == null){
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(new MessageResponse("Thông tin tài khoản không hợp lệ"));
+        }
         if (user.getStatus().equals(MerchantStatus.APPROVED)){
             Authentication authentication = authenticationManager.authenticate(
                     new UsernamePasswordAuthenticationToken(loginRequest.getUsername(), loginRequest.getPassword()));

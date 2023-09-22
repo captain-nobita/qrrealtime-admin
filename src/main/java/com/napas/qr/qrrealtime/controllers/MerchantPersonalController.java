@@ -57,4 +57,8 @@ public class MerchantPersonalController {
     public ResponseEntity<?>merchantDetail(@PathVariable Long id){
         return merchantPersonalService.merchantDetail(id);
     }
+    @GetMapping("/path")
+    public ResponseEntity<?>getPatchResiterAccountBank(){
+        return merchantPersonalService.getPatch();
+    }
 }
