@@ -19,4 +19,8 @@ public class QrCodeController {
     public void generateQRCode(HttpServletResponse response){
         vietQR.generateQRCode(response);
     }
+    @GetMapping("/generateQRCodeCashier")
+    public void generateQRCodeCashier(HttpServletResponse response){
+        vietQR.generateQRCodeCashier(response);
+    }
 }

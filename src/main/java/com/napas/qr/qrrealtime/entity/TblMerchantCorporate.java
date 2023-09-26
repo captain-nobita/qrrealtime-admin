@@ -14,6 +14,7 @@ import java.util.Collection;
 import java.util.Date;
 import javax.persistence.*;
 import javax.validation.constraints.NotNull;
+import javax.validation.constraints.Null;
 import javax.validation.constraints.Size;
 
 /**
@@ -81,7 +82,6 @@ public class TblMerchantCorporate implements Serializable {
     @Column(name = "BRANCH_ACCOUNT_SETTLED_TYPE")
     private EBranchAccountSettledType branchAccountSettledType;
 
-    @Size(max = 30)
     @Column(name = "CREDITOR_ACCOUNT")
     private String creditorAccount;
 
@@ -91,6 +91,7 @@ public class TblMerchantCorporate implements Serializable {
     private PaymentAcceptStatus paymentAcceptanceStatus;
 
     @OneToMany(cascade = CascadeType.ALL, mappedBy = "tblMerchantCorporate")
+    @JsonIgnore
     private Collection<TblMerchantBranch> tblMerchantBranchCollection;
 
     @NotNull
@@ -101,10 +102,12 @@ public class TblMerchantCorporate implements Serializable {
 
     @JoinColumn(name = "MM_ID", referencedColumnName = "ID")
     @ManyToOne(optional = false)
+    @JsonIgnore
     private TblMasterMerchant tblMasterMerchant;
 
     @JoinColumn(name = "SETTLE_BANK_ID", referencedColumnName = "ID")
     @ManyToOne
+    @JsonIgnore
     private TblSettleBank tblSettleBank;
 
     @Column(name = "TAX_NUMBER")
@@ -113,6 +116,16 @@ public class TblMerchantCorporate implements Serializable {
     @Column(name = "DKKD")
     private String dkkd;
 
+    @Column(name = "WEBHOOK")
+    private String webhook;
+
+    public String getWebhook() {
+        return webhook;
+    }
+
+    public void setWebhook(String webhook) {
+        this.webhook = webhook;
+    }
 
     public String getTaxNumber() {
         return taxNumber;

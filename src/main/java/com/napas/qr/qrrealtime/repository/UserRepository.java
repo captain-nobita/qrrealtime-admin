@@ -26,15 +26,14 @@ public interface UserRepository extends JpaRepository<TblOrgUser, Long> {
             " (T.fullname like %:fullname% or :fullname is null) " +
             " AND (T.status= :status or :status is null) " +
             " AND(T.username like %:username% or :username is null)" +
-            " AND(T.targetType = :targetType or :targetType is null )" +
-            " AND(T.targetId = :targetId or :targetId is null )" +
+            " AND(T.createdByUser =:userId or T.targetId =:targetId)" +
             " AND(T.status<>'DELETED') ")
     Page<TblOrgUser> search(Pageable pageable,
                             @Param("fullname") String fullname,
                             @Param("status") MerchantStatus status,
                             @Param("username") String username,
-                            @Param("targetType")ETargetType targetType,
-                            @Param("targetId") Long targetId);
+                            @Param("userId") Long userId,
+                            @Param("targetId")Long targetId);
 
     @Query("SELECT T FROM TblOrgUser T WHERE " +
             " (T.fullname like %:fullname% or :fullname is null) " +

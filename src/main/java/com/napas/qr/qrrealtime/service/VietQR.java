@@ -11,7 +11,9 @@ import com.google.zxing.MultiFormatWriter;
 import com.google.zxing.WriterException;
 import com.google.zxing.client.j2se.MatrixToImageWriter;
 import com.google.zxing.common.BitMatrix;
+import com.napas.qr.qrrealtime.entity.TblMerchantCashier;
 import com.napas.qr.qrrealtime.entity.TblMerchantPersonal;
+import com.napas.qr.qrrealtime.repository.MerchantCashierRepository;
 import com.napas.qr.qrrealtime.repository.MerchantPersonalRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -31,6 +33,9 @@ public class VietQR extends BaseService {
 
     @Autowired
     private MerchantPersonalRepository merchantPersonalRepository;
+
+    @Autowired
+    private MerchantCashierRepository merchantCashierRepository;
 
     @Value("${bankId}")
     private String bankId;
@@ -53,10 +58,38 @@ public class VietQR extends BaseService {
             response.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
         }
     }
+    public void generateQRCodeCashier(HttpServletResponse response) {
+        try {
+            Map<EncodeHintType, Object> hints = new HashMap<>();
+            hints.put(EncodeHintType.CHARACTER_SET, "UTF-8");
+            hints.put(EncodeHintType.MARGIN, 1);
+            BitMatrix bitMatrix = new MultiFormatWriter().encode(dataQrCashier(), BarcodeFormat.QR_CODE, 200, 200, hints);
+            response.setContentType("image/png");
+            OutputStream outputStream = response.getOutputStream();
+            MatrixToImageWriter.writeToStream(bitMatrix, "PNG", outputStream);
+            outputStream.close();
+        } catch (WriterException e) {
+            e.printStackTrace();
+            response.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
+        } catch (Exception e) {
+            e.printStackTrace();
+            response.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
+        }
+    }
     public String  dataQr(){
         Long merchantId = getUserDetails().getMerchantPersonal().getId();
         TblMerchantPersonal merchantPersonal = merchantPersonalRepository.findById(merchantId).orElse(null);
         String data = merchantPersonal.getTblSettleBank().getBankReceiveCode()+merchantPersonal.getTblMasterMerchant().getMmCode()+"000"+merchantPersonal.getMerchantCode() ;
+        String qrCodeData = getVietQrNotAmount(bankId, data);
+        return qrCodeData;
+    }
+
+    public String dataQrCashier(){
+        Long cashierId= getUserDetails().getCashier().getId();
+        TblMerchantCashier merchantCashier = merchantCashierRepository.findById(cashierId).orElse(null);
+        String data= merchantCashier.getTblMerchantBranch().getTblSettleBank().getBankReceiveCode() +merchantCashier.getTblMerchantBranch().getTblMerchantCorporate().getTblMasterMerchant().getMmCode()+
+                merchantCashier.getTblMerchantBranch().getTblMerchantCorporate().getMerchantCode()+merchantCashier.getTblMerchantBranch().getBranchCode()+
+                merchantCashier.getCashierCode();
         String qrCodeData = getVietQrNotAmount(bankId, data);
         return qrCodeData;
     }

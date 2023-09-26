@@ -38,11 +38,12 @@ public class TblMerchantCorporateDTO {
 
     private String provName;
 
-    private Long settleBankId;
 
     private String taxNumber;
 
     private String dkkd;
+
+    private String webhook;
 
     public String getTaxNumber() {
         return taxNumber;
@@ -59,15 +60,6 @@ public class TblMerchantCorporateDTO {
     public void setDkkd(String dkkd) {
         this.dkkd = dkkd;
     }
-
-    public Long getSettleBankId() {
-        return settleBankId;
-    }
-
-    public void setSettleBankId(Long settleBankId) {
-        this.settleBankId = settleBankId;
-    }
-
     private String creditorAccount;
 
     public String getCreditorAccount() {

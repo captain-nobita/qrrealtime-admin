@@ -1,6 +1,7 @@
 package com.napas.qr.qrrealtime.controllers;
 
 import com.napas.qr.qrrealtime.define.MerchantStatus;
+import com.napas.qr.qrrealtime.entity.TblMerchantPersonal;
 import com.napas.qr.qrrealtime.models.CreateMerchantPersonalDTO;
 import com.napas.qr.qrrealtime.models.TblMerchantPersonalDTO;
 import com.napas.qr.qrrealtime.service.MerchantPersonalService;
@@ -20,6 +21,7 @@ import java.security.InvalidKeyException;
 import java.security.NoSuchAlgorithmException;
 import java.security.Principal;
 import java.security.SignatureException;
+import java.util.List;
 
 @RestController
 @RequestMapping(value = "/mngweb/api/merchantPersonal", produces = "application/json")
@@ -60,5 +62,9 @@ public class MerchantPersonalController {
     @GetMapping("/path")
     public ResponseEntity<?>getPatchResiterAccountBank(){
         return merchantPersonalService.getPatch();
+    }
+    @GetMapping()
+    public ResponseEntity<?> get(){
+        return merchantPersonalService.list();
     }
 }

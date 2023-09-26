@@ -75,9 +75,9 @@ public class AuthController {
             TblMerchantCashier cashier = userDetails.getCashier();
             TblMerchantPersonal personal = userDetails.getMerchantPersonal();
 
-            String masterMerchantName = masterMerchant.getMmName();
+            String masterMerchantName = masterMerchant.getName();
 
-            String branchName = merchantBranch != null ? merchantBranch.getBranchName() : "";
+            String branchName = merchantBranch != null ? merchantBranch.getName() : "";
             String cashierName = cashier != null ? cashier.getCashierCode() : "";
 
             String merchantName = null;

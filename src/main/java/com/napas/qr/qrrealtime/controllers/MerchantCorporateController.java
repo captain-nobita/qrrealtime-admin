@@ -51,4 +51,12 @@ public class MerchantCorporateController {
     public ResponseEntity<?>merchantDetail(HttpServletRequest request,@PathVariable Long id){
         return merchantCorporateService.merchantDetail(id);
     }
+    @GetMapping("/path")
+    public ResponseEntity<?>getPatchResiterAccountBank(){
+        return merchantCorporateService.getPatch();
+    }
+    @GetMapping()
+    public ResponseEntity<?>list(){
+        return merchantCorporateService.list();
+    }
 }

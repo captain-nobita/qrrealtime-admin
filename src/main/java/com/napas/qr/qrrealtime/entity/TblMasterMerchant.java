@@ -4,19 +4,12 @@ package com.napas.qr.qrrealtime.entity;/*
  */
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.napas.qr.qrrealtime.define.MerchantStatus;
 
 import java.io.Serializable;
 import java.time.LocalDateTime;
 import java.util.Collection;
-import javax.persistence.Basic;
-import javax.persistence.CascadeType;
-import javax.persistence.Column;
-import javax.persistence.Entity;
-import javax.persistence.Id;
-import javax.persistence.NamedQueries;
-import javax.persistence.NamedQuery;
-import javax.persistence.OneToMany;
-import javax.persistence.Table;
+import javax.persistence.*;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
 
@@ -41,16 +34,15 @@ public class TblMasterMerchant implements Serializable {
     @Size(min = 1, max = 2)
     @Column(name = "MM_CODE")
     private String mmCode;
-    @Basic(optional = false)
-    @NotNull
-    @Size(min = 1, max = 20)
+
+    @Enumerated(EnumType.STRING)
     @Column(name = "STATUS")
-    private String status;
+    private MerchantStatus status;
     @Basic(optional = false)
     @NotNull
     @Size(min = 1, max = 500)
     @Column(name = "MM_NAME")
-    private String mmName;
+    private String name;
     @Basic(optional = false)
     @NotNull
     @Column(name = "DATE_CREATED")
@@ -82,11 +74,11 @@ public class TblMasterMerchant implements Serializable {
         this.id = id;
     }
 
-    public TblMasterMerchant(Long id, String mmCode, String status, String mmName, LocalDateTime dateCreated, long createdByUser, String viewMerchantPayment) {
+    public TblMasterMerchant(Long id, String mmCode, MerchantStatus status, String name, LocalDateTime dateCreated, long createdByUser, String viewMerchantPayment) {
         this.id = id;
         this.mmCode = mmCode;
         this.status = status;
-        this.mmName = mmName;
+        this.name = name;
         this.dateCreated = dateCreated;
         this.createdByUser = createdByUser;
         this.viewMerchantPayment = viewMerchantPayment;
@@ -108,20 +100,20 @@ public class TblMasterMerchant implements Serializable {
         this.mmCode = mmCode;
     }
 
-    public String getStatus() {
+    public MerchantStatus getStatus() {
         return status;
     }
 
-    public void setStatus(String status) {
+    public void setStatus(MerchantStatus status) {
         this.status = status;
     }
 
-    public String getMmName() {
-        return mmName;
+    public String getName() {
+        return name;
     }
 
-    public void setMmName(String mmName) {
-        this.mmName = mmName;
+    public void setName(String mmName) {
+        this.name = mmName;
     }
 
     public LocalDateTime getDateCreated() {

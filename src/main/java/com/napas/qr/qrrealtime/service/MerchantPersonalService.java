@@ -25,6 +25,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
 import java.util.Date;
+import java.util.List;
 
 @Service
 public class MerchantPersonalService extends BaseService {
@@ -34,9 +35,6 @@ public class MerchantPersonalService extends BaseService {
 
     @Autowired
     private SettleBankRepository settleBankRepository;
-
-    @Autowired
-    private MasterMerchantRepository masterMerchantRepository;
 
     @Autowired
     private DistrictRepository districtRepository;
@@ -61,8 +59,8 @@ public class MerchantPersonalService extends BaseService {
     }
 
     public ResponseEntity<?> search(Pageable paging, String name, MerchantStatus status, String merchantCode) {
-        if (getUserDetails().getTargetType().equals(ETargetType.MERCHANT) && getERole().equals(ERole.ADMIN) || getUserDetails().getTargetType().equals(ETargetType.MASTER) || getUserDetails().getTargetType().equals(ETargetType.PERSONAL)   ){
-            Page<TblMerchantPersonal> dbResult = merchantPersonalRepository.search(paging, name, status, merchantCode, getUserDetails().getMasterMerchant().getId());
+        if (getUserDetails().getTargetType().equals(ETargetType.MASTER) || getUserDetails().getTargetType().equals(ETargetType.PERSONAL)   ){
+            Page<TblMerchantPersonal> dbResult = merchantPersonalRepository.search(paging, name, status, merchantCode, getUserDetails().getMasterMerchant().getId(),getUserId(), getTargetId());
             return ResponseEntity.ok(dbResult.map(entity -> fromEntity(entity)));
         }
         return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(new MessageResponse("Bạn không có quyền xem thông tin merchant này"));
@@ -71,15 +69,12 @@ public class MerchantPersonalService extends BaseService {
     public ResponseEntity<?> post(CreateMerchantPersonalDTO input) {
 
         TblMerchantPersonal tblMerchantPersonal = new TblMerchantPersonal();
-        if (getUserDetails().getTargetType() == ETargetType.PERSONAL && getERole().equals(ERole.ADMIN) || getUserDetails().getTargetType() == ETargetType.MASTER && getERole().equals(ERole.ADMIN)) {
+        if (getUserDetails().getTargetType() == ETargetType.PERSONAL && getERole().equals(ERole.ADMIN) || getUserDetails().getTargetType() == ETargetType.MASTER) {
             tblMerchantPersonal.setName(input.getName());
             if (input.getMerchantCode().length()>5 ||input.getMerchantCode().length()<5 ){
                 return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(new MessageResponse("MerchantCode là chuỗi gồm 5 kí tự"));
             }
 
-            if (merchantPersonalRepository.existsByMerchantCode(input.getMerchantCode())) {
-                return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(new MessageResponse("MerchantCode đã tồn tại"));
-            }
             if (merchantPersonalRepository.existsByMerchantCode(input.getMerchantCode())) {
                 return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(new MessageResponse("MerchantCode đã tồn tại"));
             }
@@ -89,22 +84,28 @@ public class MerchantPersonalService extends BaseService {
 
             }
             TblDistrict district = districtRepository.findById(input.getDistrictId()).orElse(null);
+            TblMasterMerchant masterMerchant = getUserDetails().getMasterMerchant();
+            tblMerchantPersonal.setTblMasterMerchant(masterMerchant);
             tblMerchantPersonal.setTblDistrict(district);
             tblMerchantPersonal.setAddressLine(input.getAddressLine());
             tblMerchantPersonal.setOwnerName(input.getOwnerName());
             tblMerchantPersonal.setEmailAddress(input.getEmailAddress());
             if (input.getSettleBankId() == null){
                 return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(new MessageResponse("Bạn chưa điền thông tin ngân hàng thụ hưởng"));
-
             }
             TblSettleBank settleBank = settleBankRepository.findById(input.getSettleBankId()).orElse(null);
             tblMerchantPersonal.setTblSettleBank(settleBank);
+            if (input.getCreditorAccount().length()>20){
+                return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(new MessageResponse("Số tài khoản không vượt quá 20 kí tự"));
+            }
+            if (input.getCreditorAccount().length()<8){
+                return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(new MessageResponse("Số tài khoản không nhỏ hơn 8 kí tự"));
+            }
             tblMerchantPersonal.setCreditorAccount(input.getCreditorAccount());
             tblMerchantPersonal.setCreatedByUser(getUserId());
             tblMerchantPersonal.setDateCreated(new Date());
             tblMerchantPersonal.setPhoneNumber(input.getPhoneNumber());
             tblMerchantPersonal.setStatus(MerchantStatus.APPROVED);
-            TblMasterMerchant masterMerchant = masterMerchantRepository.findById(getTargetId()).orElse(null);
             tblMerchantPersonal.setTblMasterMerchant(masterMerchant);
             tblMerchantPersonal.setPaymentAcceptanceStatus(PaymentAcceptStatus.READY);
 
@@ -112,14 +113,13 @@ public class MerchantPersonalService extends BaseService {
             return ResponseEntity.ok(fromEntity(savedData));
         } else {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(new MessageResponse("Bạn không có quyền tạo Merchant này"));
-
         }
     }
 
 
 
     public ResponseEntity<?>put(Long id, CreateMerchantPersonalDTO input){
-        if (getUserDetails().getTargetType() == ETargetType.PERSONAL && getERole().equals(ERole.ADMIN) || getUserDetails().getTargetType() == ETargetType.MASTER && getERole().equals(ERole.ADMIN)) {
+        if (getUserDetails().getTargetType() == ETargetType.PERSONAL && getERole().equals(ERole.ADMIN) || getUserDetails().getTargetType() == ETargetType.MASTER) {
             TblMerchantPersonal tblMerchantPersonal =merchantPersonalRepository.findById(id).orElse(null);
             tblMerchantPersonal.setName(input.getName());
             TblDistrict district = districtRepository.findById(input.getDistrictId()).orElse(null);
@@ -129,6 +129,12 @@ public class MerchantPersonalService extends BaseService {
             tblMerchantPersonal.setEmailAddress(input.getEmailAddress());
             TblSettleBank settleBank = settleBankRepository.findById(input.getSettleBankId()).orElse(null);
             tblMerchantPersonal.setTblSettleBank(settleBank);
+            if (input.getCreditorAccount().length()>20){
+                return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(new MessageResponse("Số tài khoản không vượt quá 20 kí tự"));
+            }
+            if (input.getCreditorAccount().length()<8){
+                return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(new MessageResponse("Số tài khoản không nhỏ hơn 8 kí tự"));
+            }
             tblMerchantPersonal.setCreditorAccount(input.getCreditorAccount());
             tblMerchantPersonal.setModifiedByUser(getUserId());
             tblMerchantPersonal.setPhoneNumber(input.getPhoneNumber());
@@ -172,9 +178,12 @@ public class MerchantPersonalService extends BaseService {
         return ResponseEntity.ok(redirectPvCombank);
     }
 
-    public ResponseEntity<?>dataQr(Long id){
-        TblMerchantPersonal merchantPersonal = merchantPersonalRepository.findById(id).orElse(null);
-        String data = merchantPersonal.getTblSettleBank().getBankReceiveCode()+merchantPersonal.getTblMasterMerchant().getMmCode()+"000"+merchantPersonal.getMerchantCode() ;
-        return ResponseEntity.ok(data);
+    public ResponseEntity<?> list(){
+        TblMasterMerchant masterMerchant = getUserDetails().getMasterMerchant();
+        if (masterMerchant != null){
+            List<TblMerchantPersonal> list = merchantPersonalRepository.get(masterMerchant.getId(), MerchantStatus.APPROVED);
+            return ResponseEntity.ok(list);
+        }
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(new MessageResponse("Không tồn tại Master Merchant này"));
     }
 }

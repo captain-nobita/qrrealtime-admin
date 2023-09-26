@@ -78,7 +78,7 @@ public class TblMerchantBranch implements Serializable {
     @NotNull
     @Size(min = 1, max = 500)
     @Column(name = "BRANCH_NAME")
-    private String branchName;
+    private String name;
 
 
     @Enumerated(EnumType.STRING)
@@ -100,13 +100,13 @@ public class TblMerchantBranch implements Serializable {
         this.id = id;
     }
 
-    public TblMerchantBranch(Long id, String branchCode, MerchantStatus status, Date dateCreated, Long createdByUser, String branchName) {
+    public TblMerchantBranch(Long id, String branchCode, MerchantStatus status, Date dateCreated, Long createdByUser, String name) {
         this.id = id;
         this.branchCode = branchCode;
         this.status = status;
         this.dateCreated = dateCreated;
         this.createdByUser = createdByUser;
-        this.branchName = branchName;
+        this.name = name;
     }
 
     public Long getId() {
@@ -174,12 +174,12 @@ public class TblMerchantBranch implements Serializable {
         this.creditorAccount = creditorAccount;
     }
 
-    public String getBranchName() {
-        return branchName;
+    public String getName() {
+        return name;
     }
 
-    public void setBranchName(String branchName) {
-        this.branchName = branchName;
+    public void setName(String name) {
+        this.name = name;
     }
 
     public PaymentAcceptStatus getPaymentAcceptanceStatus() {

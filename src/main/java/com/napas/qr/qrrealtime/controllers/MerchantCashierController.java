@@ -42,4 +42,8 @@ public class MerchantCashierController {
     public ResponseEntity<?> delete(@PathVariable Long id) {
         return merchantCashierService.delete(id);
     }
+    @GetMapping()
+    public ResponseEntity<?>list(){
+        return merchantCashierService.list();
+    }
 }

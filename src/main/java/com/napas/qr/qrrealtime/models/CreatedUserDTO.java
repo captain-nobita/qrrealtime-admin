@@ -19,4 +19,6 @@ public class CreatedUserDTO {
     private ERole role;
 
     private ETargetType targetType;
+
+    private Long targetId;
 }

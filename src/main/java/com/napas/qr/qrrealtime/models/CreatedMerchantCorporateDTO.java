@@ -17,10 +17,10 @@ public class CreatedMerchantCorporateDTO {
 
     private Long settleBankId;
 
-    private String creditorAccount;
-
     private String taxNumber;
 
 
     private String dkkd;
+
+    private String webhook;
 }

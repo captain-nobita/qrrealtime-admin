@@ -37,7 +37,7 @@ public class TblMerchantBranchDTO {
 
     private String creditorAccount;
 
-    private String branchName;
+    private String name;
 
 
     private PaymentAcceptStatus paymentAcceptanceStatus;
@@ -57,7 +57,7 @@ public class TblMerchantBranchDTO {
         this.modifiedByUser = modifiedByUser;
         this.settleBankId = settleBankId;
         this.creditorAccount = creditorAccount;
-        this.branchName = branchName;
+        this.name = name;
         this.paymentAcceptanceStatus = paymentAcceptanceStatus;
     }
 
@@ -133,12 +133,12 @@ public class TblMerchantBranchDTO {
         this.creditorAccount = creditorAccount;
     }
 
-    public String getBranchName() {
-        return branchName;
+    public String getName() {
+        return name;
     }
 
-    public void setBranchName(String branchName) {
-        this.branchName = branchName;
+    public void setName(String name) {
+        this.name = name;
     }
 
     public PaymentAcceptStatus getPaymentAcceptanceStatus() {

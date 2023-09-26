@@ -3,8 +3,10 @@ package com.napas.qr.qrrealtime.service;
 import com.napas.qr.qrrealtime.define.ERole;
 import com.napas.qr.qrrealtime.define.ETargetType;
 import com.napas.qr.qrrealtime.define.MerchantStatus;
+import com.napas.qr.qrrealtime.entity.TblMasterMerchant;
 import com.napas.qr.qrrealtime.entity.TblMerchantBranch;
 import com.napas.qr.qrrealtime.entity.TblMerchantCashier;
+import com.napas.qr.qrrealtime.entity.TblMerchantPersonal;
 import com.napas.qr.qrrealtime.models.MerchantCashierDTO;
 import com.napas.qr.qrrealtime.payload.response.MessageResponse;
 import com.napas.qr.qrrealtime.repository.MerchantBranchRepository;
@@ -18,6 +20,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
 import java.util.Date;
+import java.util.List;
 
 @Service
 public class MerchantCashierService extends BaseService {
@@ -33,7 +36,7 @@ public class MerchantCashierService extends BaseService {
 
     private MerchantCashierDTO fromEntity(TblMerchantCashier entity) {
         MerchantCashierDTO dto = modelMapper.map(entity, MerchantCashierDTO.class);
-        dto.setBranchName(entity.getTblMerchantBranch().getBranchName());
+        dto.setBranchName(entity.getTblMerchantBranch().getName());
         dto.setMerchantName(entity.getTblMerchantBranch().getTblMerchantCorporate().getName());
         return dto;
     }
@@ -48,7 +51,7 @@ public class MerchantCashierService extends BaseService {
             return null;
         }
         TblMerchantBranch merchantBranch = merchantBranchRepository.findById(branch.getId()).orElse(null);
-        Page<TblMerchantCashier> dbResult = merchantCashierRepository.search(paging, cashierCode, status, merchantBranch.getId());
+        Page<TblMerchantCashier> dbResult = merchantCashierRepository.search(paging, cashierCode, status, merchantBranch.getId(), getTargetId());
         return ResponseEntity.ok(dbResult.map(entity -> fromEntity(entity)));
     }
 
@@ -56,12 +59,9 @@ public class MerchantCashierService extends BaseService {
 
         TblMerchantCashier tblMerchantCashier = new TblMerchantCashier();
 
-        if (getUserDetails().getTargetType() == ETargetType.BRANCH && getERole().equals(ERole.ADMIN) && getUserDetails().getBranch().getStatus().equals(MerchantStatus.APPROVED)) {
+        if (getUserDetails().getTargetType() == ETargetType.BRANCH && getUserDetails().getBranch().getStatus().equals(MerchantStatus.APPROVED)) {
 
             TblMerchantBranch branch = getUserDetails().getBranch();
-            if (merchantCashierRepository.existsByCashierCode(input.getCashierCode())) {
-                return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(new MessageResponse("CashierCode đã tồn tại"));
-            }
 
             tblMerchantCashier.setCashierCode(input.getCashierCode());
             tblMerchantCashier.setTblMerchantBranch(branch);
@@ -82,11 +82,10 @@ public class MerchantCashierService extends BaseService {
 
         TblMerchantCashier tblMerchantCashier = merchantCashierRepository.findById(id).orElse(null);
 
-        if (getUserDetails().getTargetType() == ETargetType.BRANCH && getERole().equals(ERole.ADMIN)&& getUserDetails().getBranch().getStatus().equals(MerchantStatus.APPROVED)) {
+        if (getUserDetails().getTargetType() == ETargetType.BRANCH && getUserDetails().getBranch().getStatus().equals(MerchantStatus.APPROVED)) {
 
             TblMerchantBranch branch = getUserDetails().getBranch();
 
-            tblMerchantCashier.setCashierCode(input.getCashierCode());
             tblMerchantCashier.setTblMerchantBranch(branch);
             tblMerchantCashier.setStatus(MerchantStatus.APPROVED);
             tblMerchantCashier.setDateModified(new Date());
@@ -102,7 +101,7 @@ public class MerchantCashierService extends BaseService {
     }
 
     public ResponseEntity<?> delete(Long id) {
-        if (getUserDetails().getTargetType() == ETargetType.BRANCH && getERole().equals(ERole.ADMIN)&& getUserDetails().getBranch().getStatus().equals(MerchantStatus.APPROVED)) {
+        if (getUserDetails().getTargetType() == ETargetType.BRANCH && getUserDetails().getBranch().getStatus().equals(MerchantStatus.APPROVED)) {
             TblMerchantCashier cashier = merchantCashierRepository.findById(id).orElse(null);
             cashier.setStatus(MerchantStatus.DELETED);
             cashier.setDateModified(new Date());
@@ -112,5 +111,13 @@ public class MerchantCashierService extends BaseService {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(new MessageResponse("Bạn không có quyền tạo Merchant này"));
 
         }
+    }
+    public ResponseEntity<?> list(){
+        TblMerchantBranch merchantBranch = getUserDetails().getBranch();
+        if (merchantBranch != null){
+            List<TblMerchantCashier> list = merchantCashierRepository.list(merchantBranch.getId());
+            return ResponseEntity.ok(list);
+        }
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(new MessageResponse("Không tồn tại Master Merchant này"));
     }
 }

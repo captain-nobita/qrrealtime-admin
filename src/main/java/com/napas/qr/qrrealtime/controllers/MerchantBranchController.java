@@ -48,4 +48,8 @@ public class MerchantBranchController {
     public ResponseEntity<?> delete(@PathVariable Long id) {
         return merchantBranchService.delete(id);
     }
+    @GetMapping()
+    public ResponseEntity<?>list(){
+        return merchantBranchService.list();
+    }
 }

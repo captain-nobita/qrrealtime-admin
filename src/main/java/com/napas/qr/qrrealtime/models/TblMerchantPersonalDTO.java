@@ -3,9 +3,11 @@ package com.napas.qr.qrrealtime.models;
 
 import com.napas.qr.qrrealtime.define.MerchantStatus;
 import com.napas.qr.qrrealtime.define.PaymentAcceptStatus;
+import com.napas.qr.qrrealtime.entity.TblMerchantPersonal;
 import lombok.Data;
 
 import java.util.Date;
+import java.util.function.Function;
 
 @Data
 public class TblMerchantPersonalDTO {

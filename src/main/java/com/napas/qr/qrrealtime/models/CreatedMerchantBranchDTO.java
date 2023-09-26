@@ -26,7 +26,7 @@ public class CreatedMerchantBranchDTO {
 
     private String creditorAccount;
 
-    private String branchName;
+    private String name;
 
 
 }

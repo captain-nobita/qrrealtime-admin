@@ -37,10 +37,10 @@ public class TblMerchantPersonal implements Serializable {
     @Size(min = 1, max = 5)
     @Column(name = "MERCHANT_CODE")
     private String merchantCode;
-    @Basic(optional = false)
-    @NotNull
-    @Enumerated(EnumType.STRING)
+
+
     @Column(name = "STATUS")
+    @Enumerated(EnumType.STRING)
     private MerchantStatus status;
 
     @Basic(optional = false)
@@ -85,9 +85,11 @@ public class TblMerchantPersonal implements Serializable {
     private TblDistrict tblDistrict;
     @JoinColumn(name = "MM_ID", referencedColumnName = "ID")
     @ManyToOne(optional = false)
+    @JsonIgnore
     private TblMasterMerchant tblMasterMerchant;
     @JoinColumn(name = "SETTLE_BANK_ID", referencedColumnName = "ID")
     @ManyToOne(optional = false)
+    @JsonIgnore
     private TblSettleBank tblSettleBank;
 
     @Column(name = "OWNER_NAME")
