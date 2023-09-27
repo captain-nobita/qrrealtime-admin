@@ -15,14 +15,16 @@ import java.util.List;
 @Repository
 public interface MerchantBranchRepository extends JpaRepository<TblMerchantBranch, Long> {
 
-    Boolean existsByBranchCode(String BranchCode);
+    Boolean existsByBranchCodeAndTblMerchantCorporate(String BranchCode, TblMerchantCorporate merchantCorporate);
+
+    TblMerchantBranch findFirstByTblMerchantCorporate(TblMerchantCorporate merchantCorporate);
 
     @Query("SELECT T FROM TblMerchantBranch T WHERE " +
             " (T.name like %:name% or :name is null) " +
             " AND (T.status= :status or :status is null) " +
             " AND(T.branchCode like %:branchCode% or :branchCode is null)" +
             " AND(T.tblMerchantCorporate.id= :merchantId or :merchantId is null)" +
-            " AND(T.id= :targetId or T.createdByUser =:userId)" +
+            " AND(T.id= :targetId or :targetId is null)" +
             " AND(T.tblMerchantCorporate.tblMasterMerchant.id = :MasterMerchantId or :MasterMerchantId is null )" +
             " AND(T.status<>'DELETED') ")
     Page<TblMerchantBranch> search(Pageable pageable,
@@ -31,12 +33,11 @@ public interface MerchantBranchRepository extends JpaRepository<TblMerchantBranc
                                    @Param("branchCode") String branchCode,
                                    @Param("merchantId") Long merchantId,
                                    @Param("targetId") Long targetId,
-                                   @Param("userId") Long userId,
                                    @Param("MasterMerchantId") Long MasterMerchantId);
 
     @Query("SELECT T FROM TblMerchantBranch T WHERE " +
             " (T.tblMerchantCorporate.id= :merchantId or :merchantId is null)" +
-            " AND(T.id= :targetId)" +
+            " AND(T.id= :targetId or :targetId is null)" +
             " AND(T.status<>'DELETED') ")
     List<TblMerchantBranch> get(@Param("merchantId") Long merchantId,
                                 @Param("targetId") Long targetId);

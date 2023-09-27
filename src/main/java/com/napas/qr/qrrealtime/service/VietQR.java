@@ -42,10 +42,11 @@ public class VietQR extends BaseService {
 
     public void generateQRCode(HttpServletResponse response) {
         try {
+            String CONTENT = "Hello word";
             Map<EncodeHintType, Object> hints = new HashMap<>();
             hints.put(EncodeHintType.CHARACTER_SET, "UTF-8");
             hints.put(EncodeHintType.MARGIN, 1);
-            BitMatrix bitMatrix = new MultiFormatWriter().encode(dataQr(), BarcodeFormat.QR_CODE, 200, 200, hints);
+            BitMatrix bitMatrix = new MultiFormatWriter().encode(dataQr(),BarcodeFormat.QR_CODE, 200, 200, hints);
             response.setContentType("image/png");
             OutputStream outputStream = response.getOutputStream();
             MatrixToImageWriter.writeToStream(bitMatrix, "PNG", outputStream);

@@ -15,13 +15,15 @@ import java.util.List;
 @Repository
 public interface MerchantCashierRepository extends JpaRepository<TblMerchantCashier, Long> {
 
-    Boolean existsByCashierCode(String CashierCode);
+    TblMerchantCashier findFirstByTblMerchantBranch(TblMerchantBranch merchantBranch);
+
+    Boolean existsByCashierCodeAndTblMerchantBranch(String code ,TblMerchantBranch merchantBranch);
 
     @Query("SELECT T FROM TblMerchantCashier T WHERE " +
             " (T.cashierCode like %:cashierCode% or :cashierCode is null) " +
             " AND (T.status= :status or :status is null) " +
             " AND(T.tblMerchantBranch.id= :branchId or :branchId is null)" +
-            " AND(T.id = :targetId)" +
+            " AND(T.id = :targetId or :targetId is null )" +
             " AND(T.status<>'DELETED') ")
     Page<TblMerchantCashier> search(Pageable pageable,
                                     @Param("cashierCode") String cashierCode,

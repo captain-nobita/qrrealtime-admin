@@ -43,16 +43,21 @@ public class MerchantBranchService extends BaseService {
 
     private TblMerchantBranchDTO fromEntity(TblMerchantBranch entity) {
         TblMerchantBranchDTO dto = modelMapper.map(entity, TblMerchantBranchDTO.class);
+        dto.setSettleBankId(entity.getTblSettleBank().getId());
         return dto;
     }
 
     public ResponseEntity<?> search(Pageable paging, String branchName, MerchantStatus status, String branchCode) {
         TblMerchantCorporate merchantCorporate= getUserDetails().getMerchant();
         TblMasterMerchant masterMerchant = getUserDetails().getMasterMerchant();
-        if (getUserDetails().getTargetType().equals(ETargetType.MERCHANT) ||getUserDetails().getTargetType().equals(ETargetType.BRANCH)){
-            Page<TblMerchantBranch> dbResult  = merchantBranchRepository.search(paging,branchName,status,branchCode, merchantCorporate.getId(), getTargetId(), getUserId(), masterMerchant.getId());
+        if (getUserDetails().getTargetType().equals(ETargetType.MERCHANT)){
+            Page<TblMerchantBranch> dbResult  = merchantBranchRepository.search(paging,branchName,status,branchCode, merchantCorporate.getId(), null, masterMerchant.getId());
             return ResponseEntity.ok(dbResult.map(entity -> fromEntity(entity)));
-        }else {
+        } else if (getUserDetails().getTargetType().equals(ETargetType.BRANCH)){
+            Page<TblMerchantBranch> dbResult  = merchantBranchRepository.search(paging,branchName,status,branchCode, merchantCorporate.getId(), getTargetId(), masterMerchant.getId());
+            return ResponseEntity.ok(dbResult.map(entity -> fromEntity(entity)));
+        }
+        else{
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(new MessageResponse("Bạn không có quyền truy cập danh sách này"));
         }
     }
@@ -64,7 +69,7 @@ public class MerchantBranchService extends BaseService {
         if (getUserDetails().getTargetType() == ETargetType.MERCHANT) {
 
             TblMerchantCorporate merchant = getUserDetails().getMerchant();
-            if (merchantBranchRepository.existsByBranchCode(input.getBranchCode())) {
+            if (merchantBranchRepository.existsByBranchCodeAndTblMerchantCorporate(input.getBranchCode(), merchant)) {
                 return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(new MessageResponse("BranchCode đã tồn tại"));
             }
             tblMerchantBranch.setBranchCode(input.getBranchCode());
@@ -132,8 +137,11 @@ public class MerchantBranchService extends BaseService {
     public ResponseEntity<?> list(){
 
         TblMerchantCorporate merchantCorporate = getUserDetails().getMerchant();
-        if (merchantCorporate != null){
-            List<TblMerchantBranch> list = merchantBranchRepository.get(merchantCorporate.getId(), getTargetId());
+        if (getUserDetails().getTargetType().equals(ETargetType.MERCHANT)){
+            List<TblMerchantBranch> list = merchantBranchRepository.get(merchantCorporate.getId(), null);
+            return ResponseEntity.ok(list);
+        } else if (getUserDetails().getTargetType().equals(ETargetType.BRANCH)){
+            List<TblMerchantBranch> list = merchantBranchRepository.get(merchantCorporate.getId(),getTargetId());
             return ResponseEntity.ok(list);
         }
         return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(new MessageResponse("Không tồn tại Branch này"));

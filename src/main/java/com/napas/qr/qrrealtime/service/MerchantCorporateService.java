@@ -49,11 +49,16 @@ public class MerchantCorporateService extends BaseService {
     }
 
     public ResponseEntity<?> search(Pageable paging, String name, MerchantStatus status, String merchantCode) {
-        if (getUserDetails().getTargetType().equals(ETargetType.MERCHANT) || getUserDetails().getTargetType().equals(ETargetType.MASTER)){
+        if (getUserDetails().getTargetType().equals(ETargetType.MASTER)){
             TblMasterMerchant masterMerchant = getUserDetails().getMasterMerchant();
-            Page<TblMerchantCorporate> dbResult  = merchantCorporateRepository.search(paging,name,status,merchantCode, masterMerchant.getId(), getUserId(), getTargetId());
+            Page<TblMerchantCorporate> dbResult  = merchantCorporateRepository.search(paging,name,status,merchantCode, masterMerchant.getId(),null);
             return ResponseEntity.ok(dbResult.map(entity -> fromEntity(entity)));
-        }else {
+        } else if (getUserDetails().getTargetType().equals(ETargetType.MERCHANT)){
+            TblMasterMerchant masterMerchant = getUserDetails().getMasterMerchant();
+            Page<TblMerchantCorporate> dbResult  = merchantCorporateRepository.search(paging,name,status,merchantCode, masterMerchant.getId(),getTargetId());
+            return ResponseEntity.ok(dbResult.map(entity -> fromEntity(entity)));
+        }
+        else {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(new MessageResponse("Bạn không có quyền xem Merchant này"));
         }
     }
@@ -66,7 +71,7 @@ public class MerchantCorporateService extends BaseService {
                 return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(new MessageResponse("Tên Merchant không được để trống"));
             }
             tblMerchantCorporate.setName(input.getName());
-            if (merchantCorporateRepository.existsByMerchantCode(input.getMerchantCode())) {
+            if (merchantCorporateRepository.existsByMerchantCodeAndTblMasterMerchant(input.getMerchantCode(), getUserDetails().getMasterMerchant())) {
                 return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(new MessageResponse("MerchantCode đã tồn tại"));
             }
             if (input.getMerchantCode().length()>3 || input.getMerchantCode().length()<3){
@@ -126,7 +131,7 @@ public class MerchantCorporateService extends BaseService {
 
             return ResponseEntity.ok(fromEntity(savedData));
         } else {
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(new MessageResponse("Bạn không có quyền tạo Merchant này"));
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(new MessageResponse("Bạn không có quyền sửa Merchant này"));
 
         }
     }
@@ -157,8 +162,11 @@ public class MerchantCorporateService extends BaseService {
 
     public ResponseEntity<?> list(){
         TblMasterMerchant masterMerchant = getUserDetails().getMasterMerchant();
-        if (masterMerchant != null){
-            List<TblMerchantCorporate> list = merchantCorporateRepository.get(masterMerchant.getId(), getTargetId(), getUserId());
+        if (getUserDetails().getTargetType().equals(ETargetType.MASTER)){
+            List<TblMerchantCorporate> list = merchantCorporateRepository.get(masterMerchant.getId(), null);
+            return ResponseEntity.ok(list);
+        } else if (getUserDetails().getTargetType().equals(ETargetType.MERCHANT)){
+            List<TblMerchantCorporate> list = merchantCorporateRepository.get(masterMerchant.getId(),getTargetId());
             return ResponseEntity.ok(list);
         }
         return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(new MessageResponse("Không tồn tại Master Merchant này"));

@@ -48,7 +48,6 @@ public class UserService extends BaseService {
     @Autowired
     JwtUtils jwtUtils;
 
-
     @Autowired
     private MasterMerchantRepository masterMerchantDAO;
 
@@ -62,51 +61,10 @@ public class UserService extends BaseService {
     private MerchantCashierRepository cashierDAO;
 
     @Autowired
-    private MerchantPersonalRepository merchantPersonalDAO;
-
-    @Autowired
     private ModelMapper modelMapper;
 
     private OrgUserDTO fromEntity(TblOrgUser entity) {
         OrgUserDTO dto = modelMapper.map(entity, OrgUserDTO.class);
-        TblOrgUser user = userRepository.findById(entity.getId()).orElse(null);
-        TblMasterMerchant masterMerchant = null;
-        TblMerchantCorporate merchantCorporate = null;
-        TblMerchantBranch merchantBranch = null;
-        TblMerchantCashier cashier = null;
-        TblMerchantPersonal personal = null;
-        switch(user.getTargetType()) {
-            case MASTER:
-                masterMerchant = masterMerchantDAO.findById(user.getTargetId())
-                        .orElseThrow(() -> new UsernameNotFoundException("User Not Found with username: "));
-                break;
-            case MERCHANT:
-                merchantCorporate = merchantCorporateDAO.findById(user.getTargetId())
-                        .orElseThrow(() -> new UsernameNotFoundException("User Not Found with username: "));
-
-                masterMerchant = merchantCorporate.getTblMasterMerchant();
-                break;
-            case BRANCH:
-                merchantBranch = branchDAO.findById(user.getTargetId())
-                        .orElseThrow(() -> new UsernameNotFoundException("User Not Found with username: "));
-                merchantCorporate = merchantBranch.getTblMerchantCorporate();
-                masterMerchant = merchantCorporate.getTblMasterMerchant();
-                break;
-            case CASHIER:
-                cashier = cashierDAO.findById(user.getTargetId())
-                        .orElseThrow(() -> new UsernameNotFoundException("User Not Found with username: "));
-
-                merchantBranch = cashier.getTblMerchantBranch();
-                merchantCorporate = merchantBranch.getTblMerchantCorporate();
-                masterMerchant = merchantCorporate.getTblMasterMerchant();
-                break;
-            case PERSONAL:
-                personal = merchantPersonalDAO.findById(user.getTargetId())
-                        .orElseThrow(() -> new UsernameNotFoundException("User Not Found with username: "));
-                masterMerchant = personal.getTblMasterMerchant();
-                break;
-        }
-
         return dto;
     }
 
@@ -123,8 +81,47 @@ public class UserService extends BaseService {
     }
 
     public ResponseEntity<?> search(Pageable paging, String fullname, MerchantStatus status, String username) {
-            Page<TblOrgUser> dbResult = userRepository.search(paging, fullname, status, username, getUserId(), getTargetId());
-            return ResponseEntity.ok(dbResult.map(entity -> fromEntity(entity)));
+        TblOrgUser user = userRepository.findById(getUserId()).orElse(null);
+        switch(user.getTargetType()) {
+            case MASTER:
+                TblMasterMerchant masterMerchant = masterMerchantDAO.findById(user.getTargetId())
+                        .orElseThrow(() -> new UsernameNotFoundException("User Not Found with username: "));
+                TblMerchantCorporate merchantCorporate1 = merchantCorporateDAO.findFirstByTblMasterMerchant(masterMerchant);
+                if (merchantCorporate1 == null){
+                    Page<TblOrgUser> dbResult = userRepository.search(paging, fullname, status, username, masterMerchant.getId(), null);
+                    return ResponseEntity.ok(dbResult.map(entity -> fromEntity(entity)));
+                }
+                Page<TblOrgUser> dbResult = userRepository.search(paging, fullname, status, username, masterMerchant.getId(), merchantCorporate1.getId());
+                return ResponseEntity.ok(dbResult.map(entity -> fromEntity(entity)));
+            case MERCHANT:
+                TblMerchantCorporate merchantCorporate = merchantCorporateDAO.findById(user.getTargetId())
+                        .orElseThrow(() -> new UsernameNotFoundException("User Not Found with username: "));
+                TblMerchantBranch merchantBranch1= branchDAO.findFirstByTblMerchantCorporate(merchantCorporate);
+                if (merchantBranch1 == null){
+                    Page<TblOrgUser> dbResult1 = userRepository.search(paging, fullname, status, username,merchantCorporate.getId(), null);
+                    return ResponseEntity.ok(dbResult1.map(entity -> fromEntity(entity)));
+                }
+                Page<TblOrgUser> dbResult1 = userRepository.search(paging, fullname, status, username,merchantCorporate.getId(), merchantBranch1.getId());
+                return ResponseEntity.ok(dbResult1.map(entity -> fromEntity(entity)));
+            case BRANCH:
+                TblMerchantBranch merchantBranch = branchDAO.findById(user.getTargetId())
+                        .orElseThrow(() -> new UsernameNotFoundException("User Not Found with username: "));
+                TblMerchantCashier cashier1 = cashierDAO.findFirstByTblMerchantBranch(merchantBranch);
+                if (cashier1 == null){
+                    Page<TblOrgUser> dbResult2 = userRepository.search(paging, fullname, status, username,merchantBranch.getId(),null);
+                    return ResponseEntity.ok(dbResult2.map(entity -> fromEntity(entity)));
+                }
+                Page<TblOrgUser> dbResult2 = userRepository.search(paging, fullname, status, username,merchantBranch.getId(), cashier1.getId());
+                return ResponseEntity.ok(dbResult2.map(entity -> fromEntity(entity)));
+            case CASHIER:
+                Page<TblOrgUser> dbResult3 = userRepository.searchUserCashierAndPersonal(paging, fullname, status, username,getTargetId());
+                return ResponseEntity.ok(dbResult3.map(entity -> fromEntity(entity)));
+            case PERSONAL:
+                Page<TblOrgUser> dbResult4 = userRepository.searchUserCashierAndPersonal(paging, fullname, status, username,getTargetId());
+                return ResponseEntity.ok(dbResult4.map(entity -> fromEntity(entity)));
+        }
+        return null;
+
     }
 
     public ResponseEntity<?> post(CreatedUserDTO input) {

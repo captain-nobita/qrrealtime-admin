@@ -12,7 +12,6 @@ import com.napas.qr.qrrealtime.models.CreateMerchantPersonalDTO;
 import com.napas.qr.qrrealtime.models.TblMerchantPersonalDTO;
 import com.napas.qr.qrrealtime.payload.response.MessageResponse;
 import com.napas.qr.qrrealtime.repository.DistrictRepository;
-import com.napas.qr.qrrealtime.repository.MasterMerchantRepository;
 import com.napas.qr.qrrealtime.repository.MerchantPersonalRepository;
 import com.napas.qr.qrrealtime.repository.SettleBankRepository;
 import org.modelmapper.ModelMapper;
@@ -59,11 +58,16 @@ public class MerchantPersonalService extends BaseService {
     }
 
     public ResponseEntity<?> search(Pageable paging, String name, MerchantStatus status, String merchantCode) {
-        if (getUserDetails().getTargetType().equals(ETargetType.MASTER) || getUserDetails().getTargetType().equals(ETargetType.PERSONAL)   ){
-            Page<TblMerchantPersonal> dbResult = merchantPersonalRepository.search(paging, name, status, merchantCode, getUserDetails().getMasterMerchant().getId(),getUserId(), getTargetId());
+        if (getUserDetails().getTargetType().equals(ETargetType.MASTER)){
+            Page<TblMerchantPersonal> dbResult = merchantPersonalRepository.search(paging, name, status, merchantCode, getUserDetails().getMasterMerchant().getId(),null);
             return ResponseEntity.ok(dbResult.map(entity -> fromEntity(entity)));
         }
-        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(new MessageResponse("Bạn không có quyền xem thông tin merchant này"));
+        else if (getUserDetails().getTargetType().equals(ETargetType.PERSONAL)){
+            Page<TblMerchantPersonal> dbResult = merchantPersonalRepository.search(paging, name, status, merchantCode, getUserDetails().getMasterMerchant().getId(),getTargetId());
+            return ResponseEntity.ok(dbResult.map(entity -> fromEntity(entity)));
+        } else {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(new MessageResponse("Bạn không có quyền xem thông tin merchant này"));
+        }
     }
 
     public ResponseEntity<?> post(CreateMerchantPersonalDTO input) {
@@ -178,12 +182,16 @@ public class MerchantPersonalService extends BaseService {
         return ResponseEntity.ok(redirectPvCombank);
     }
 
-    public ResponseEntity<?> list(){
+    public ResponseEntity<?> list() {
         TblMasterMerchant masterMerchant = getUserDetails().getMasterMerchant();
-        if (masterMerchant != null){
-            List<TblMerchantPersonal> list = merchantPersonalRepository.get(masterMerchant.getId(), MerchantStatus.APPROVED);
+        if (getUserDetails().getTargetType().equals(ETargetType.MASTER)) {
+            List<TblMerchantPersonal> list = merchantPersonalRepository.get(masterMerchant.getId(), null, MerchantStatus.APPROVED);
             return ResponseEntity.ok(list);
+        } else if (getUserDetails().getTargetType().equals(ETargetType.PERSONAL)) {
+            List<TblMerchantPersonal> list = merchantPersonalRepository.get(masterMerchant.getId(), getTargetId(), MerchantStatus.APPROVED);
+            return ResponseEntity.ok(list);
+        } else {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(new MessageResponse("Không tồn tại Master Merchant này"));
         }
-        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(new MessageResponse("Không tồn tại Master Merchant này"));
     }
 }

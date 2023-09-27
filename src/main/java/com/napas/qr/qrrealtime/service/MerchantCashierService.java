@@ -1,12 +1,9 @@
 package com.napas.qr.qrrealtime.service;
 
-import com.napas.qr.qrrealtime.define.ERole;
 import com.napas.qr.qrrealtime.define.ETargetType;
 import com.napas.qr.qrrealtime.define.MerchantStatus;
-import com.napas.qr.qrrealtime.entity.TblMasterMerchant;
 import com.napas.qr.qrrealtime.entity.TblMerchantBranch;
 import com.napas.qr.qrrealtime.entity.TblMerchantCashier;
-import com.napas.qr.qrrealtime.entity.TblMerchantPersonal;
 import com.napas.qr.qrrealtime.models.MerchantCashierDTO;
 import com.napas.qr.qrrealtime.payload.response.MessageResponse;
 import com.napas.qr.qrrealtime.repository.MerchantBranchRepository;
@@ -28,8 +25,6 @@ public class MerchantCashierService extends BaseService {
     @Autowired
     private MerchantCashierRepository merchantCashierRepository;
 
-    @Autowired
-    private MerchantBranchRepository merchantBranchRepository;
 
     @Autowired
     private ModelMapper modelMapper;
@@ -44,15 +39,14 @@ public class MerchantCashierService extends BaseService {
     public ResponseEntity<?> search(Pageable paging, String cashierCode, MerchantStatus status) {
 
         TblMerchantBranch branch = getUserDetails().getBranch();
-        if (branch == null) {
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(new MessageResponse("Bạn không có quyền xem Danh sách Cashier này"));
-
-        } else if (branch.getStatus().equals(MerchantStatus.DELETED)){
-            return null;
+        if (getUserDetails().getTargetType().equals(ETargetType.BRANCH)) {
+            Page<TblMerchantCashier> dbResult = merchantCashierRepository.search(paging, cashierCode, status, branch.getId(), null);
+            return ResponseEntity.ok(dbResult.map(entity -> fromEntity(entity)));
+        } else if (getUserDetails().getTargetType().equals(ETargetType.CASHIER)){
+            Page<TblMerchantCashier> dbResult = merchantCashierRepository.search(paging, cashierCode, status, branch.getId(), getTargetId());
+            return ResponseEntity.ok(dbResult.map(entity -> fromEntity(entity)));
         }
-        TblMerchantBranch merchantBranch = merchantBranchRepository.findById(branch.getId()).orElse(null);
-        Page<TblMerchantCashier> dbResult = merchantCashierRepository.search(paging, cashierCode, status, merchantBranch.getId(), getTargetId());
-        return ResponseEntity.ok(dbResult.map(entity -> fromEntity(entity)));
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(new MessageResponse("Bạn không có quyền truy cập danh sách này"));
     }
 
     public ResponseEntity<?> post(MerchantCashierDTO input) {
@@ -63,6 +57,9 @@ public class MerchantCashierService extends BaseService {
 
             TblMerchantBranch branch = getUserDetails().getBranch();
 
+            if (merchantCashierRepository.existsByCashierCodeAndTblMerchantBranch(input.getCashierCode(), branch)){
+                return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(new MessageResponse("CashierCode đã tồn tại"));
+            }
             tblMerchantCashier.setCashierCode(input.getCashierCode());
             tblMerchantCashier.setTblMerchantBranch(branch);
             tblMerchantCashier.setStatus(MerchantStatus.APPROVED);
@@ -109,7 +106,6 @@ public class MerchantCashierService extends BaseService {
             return ResponseEntity.ok(new MessageResponse("Delete merchant"));
         } else {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(new MessageResponse("Bạn không có quyền tạo Merchant này"));
-
         }
     }
     public ResponseEntity<?> list(){
