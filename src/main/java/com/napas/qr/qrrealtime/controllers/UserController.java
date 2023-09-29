@@ -56,7 +56,7 @@ public class UserController {
                                     @RequestParam(name = "status", required = false) MerchantStatus status,
                                     @RequestParam(name = "email", required = false) String email
     ) {
-        return userService.search(paging,fullname, status, email);
+        return userService.searchNew(paging,fullname, status, email);
     }
 
     @PostMapping()

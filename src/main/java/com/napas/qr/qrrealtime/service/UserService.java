@@ -7,6 +7,11 @@ package com.napas.qr.qrrealtime.service;
 
 import com.napas.qr.qrrealtime.define.ERole;
 import com.napas.qr.qrrealtime.define.ETargetType;
+import static com.napas.qr.qrrealtime.define.ETargetType.BRANCH;
+import static com.napas.qr.qrrealtime.define.ETargetType.CASHIER;
+import static com.napas.qr.qrrealtime.define.ETargetType.MASTER;
+import static com.napas.qr.qrrealtime.define.ETargetType.MERCHANT;
+import static com.napas.qr.qrrealtime.define.ETargetType.PERSONAL;
 import com.napas.qr.qrrealtime.define.MerchantStatus;
 import com.napas.qr.qrrealtime.entity.*;
 import com.napas.qr.qrrealtime.models.CreatedUserDTO;
@@ -16,6 +21,7 @@ import com.napas.qr.qrrealtime.models.UserDetail;
 import com.napas.qr.qrrealtime.payload.response.MessageResponse;
 import com.napas.qr.qrrealtime.repository.*;
 import com.napas.qr.qrrealtime.security.jwt.JwtUtils;
+import com.napas.qr.qrrealtime.security.services.UserDetailsImpl;
 import org.modelmapper.ModelMapper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -81,7 +87,7 @@ public class UserService extends BaseService {
     }
 
     public ResponseEntity<?> search(Pageable paging, String fullname, MerchantStatus status, String username) {
-        TblOrgUser user = userRepository.findById(getUserId()).orElse(null);
+        UserDetailsImpl user = getUserDetails();
         switch(user.getTargetType()) {
             case MASTER:
                 TblMasterMerchant masterMerchant = masterMerchantDAO.findById(user.getTargetId())
@@ -121,6 +127,38 @@ public class UserService extends BaseService {
                 return ResponseEntity.ok(dbResult4.map(entity -> fromEntity(entity)));
         }
         return null;
+
+    }
+    
+    public ResponseEntity<?> searchNew(Pageable paging, String fullname, MerchantStatus status, String username) {
+        UserDetailsImpl user = getUserDetails();
+        Page<TblOrgUser> listUser;
+        switch(user.getTargetType()) {
+            case MASTER:
+                TblMasterMerchant masterMerchant = user.getMasterMerchant();
+                listUser = userRepository.searchForMaster(paging, fullname, status, username, masterMerchant.getId(), masterMerchant);
+                break;
+            case MERCHANT:
+                TblMerchantCorporate merchantCorporate = user.getMerchant();
+                listUser = userRepository.searchForMerchantCorporate(paging, fullname, status, username, merchantCorporate.getId(), merchantCorporate);
+                break;
+            case BRANCH:
+                TblMerchantBranch branch = user.getBranch();
+                listUser = userRepository.searchForBranch(paging, fullname, status, username, branch.getId(), branch);
+                break;
+            case CASHIER:
+                TblMerchantCashier cashier = user.getCashier();
+                listUser = userRepository.searchForCashier(paging, fullname, status, username, cashier.getId());
+                break;
+            case PERSONAL:
+                TblMerchantPersonal personal = user.getMerchantPersonal();
+                listUser = userRepository.searchForPersonal(paging, fullname, status, username, personal.getId());
+                break;
+            default:
+                return ResponseEntity.badRequest().build();
+        }
+        
+        return ResponseEntity.ok(listUser.map(entity -> fromEntity(entity)));
 
     }
 
