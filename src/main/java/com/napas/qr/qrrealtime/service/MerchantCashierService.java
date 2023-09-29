@@ -4,6 +4,8 @@ import com.napas.qr.qrrealtime.define.ETargetType;
 import com.napas.qr.qrrealtime.define.MerchantStatus;
 import com.napas.qr.qrrealtime.entity.TblMerchantBranch;
 import com.napas.qr.qrrealtime.entity.TblMerchantCashier;
+import com.napas.qr.qrrealtime.entity.TblMerchantCorporate;
+import com.napas.qr.qrrealtime.models.CreatedMerchantBranchDTO;
 import com.napas.qr.qrrealtime.models.MerchantCashierDTO;
 import com.napas.qr.qrrealtime.payload.response.MessageResponse;
 import com.napas.qr.qrrealtime.repository.MerchantBranchRepository;
@@ -58,7 +60,7 @@ public class MerchantCashierService extends BaseService {
             TblMerchantBranch branch = getUserDetails().getBranch();
 
             if (merchantCashierRepository.existsByCashierCodeAndTblMerchantBranch(input.getCashierCode(), branch)){
-                return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(new MessageResponse("CashierCode đã tồn tại"));
+                return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(new MessageResponse("Mã Code đã tồn tại"));
             }
             tblMerchantCashier.setCashierCode(input.getCashierCode());
             tblMerchantCashier.setTblMerchantBranch(branch);
@@ -115,5 +117,12 @@ public class MerchantCashierService extends BaseService {
             return ResponseEntity.ok(list);
         }
         return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(new MessageResponse("Không tồn tại Master Merchant này"));
+    }
+    public ResponseEntity<?> checkCode(MerchantCashierDTO input){
+        TblMerchantBranch branch = getUserDetails().getBranch();
+        if (merchantCashierRepository.existsByCashierCodeAndTblMerchantBranch(input.getCashierCode(), branch)) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(new MessageResponse("Mã Code đã tồn tại"));
+        }
+        return ResponseEntity.ok("Thành Công");
     }
 }

@@ -9,6 +9,7 @@ import com.napas.qr.qrrealtime.entity.TblMasterMerchant;
 import com.napas.qr.qrrealtime.entity.TblMerchantPersonal;
 import com.napas.qr.qrrealtime.entity.TblSettleBank;
 import com.napas.qr.qrrealtime.models.CreateMerchantPersonalDTO;
+import com.napas.qr.qrrealtime.models.CreatedMerchantCorporateDTO;
 import com.napas.qr.qrrealtime.models.TblMerchantPersonalDTO;
 import com.napas.qr.qrrealtime.payload.response.MessageResponse;
 import com.napas.qr.qrrealtime.repository.DistrictRepository;
@@ -78,9 +79,9 @@ public class MerchantPersonalService extends BaseService {
             if (input.getMerchantCode().length()>5 ||input.getMerchantCode().length()<5 ){
                 return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(new MessageResponse("MerchantCode là chuỗi gồm 5 kí tự"));
             }
-
-            if (merchantPersonalRepository.existsByMerchantCode(input.getMerchantCode())) {
-                return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(new MessageResponse("MerchantCode đã tồn tại"));
+            TblMasterMerchant masterMerchant = getUserDetails().getMasterMerchant();
+            if (merchantPersonalRepository.existsByMerchantCodeAndTblMasterMerchant(input.getMerchantCode(), masterMerchant)) {
+                return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(new MessageResponse("Mã Code đã tồn tại"));
             }
             tblMerchantPersonal.setMerchantCode(input.getMerchantCode());
             if (input.getDistrictId() == null){
@@ -88,7 +89,7 @@ public class MerchantPersonalService extends BaseService {
 
             }
             TblDistrict district = districtRepository.findById(input.getDistrictId()).orElse(null);
-            TblMasterMerchant masterMerchant = getUserDetails().getMasterMerchant();
+
             tblMerchantPersonal.setTblMasterMerchant(masterMerchant);
             tblMerchantPersonal.setTblDistrict(district);
             tblMerchantPersonal.setAddressLine(input.getAddressLine());
@@ -193,5 +194,12 @@ public class MerchantPersonalService extends BaseService {
         } else {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(new MessageResponse("Không tồn tại Master Merchant này"));
         }
+    }
+    public ResponseEntity<?> checkCode(CreateMerchantPersonalDTO input){
+        TblMasterMerchant masterMerchant = getUserDetails().getMasterMerchant();
+        if (merchantPersonalRepository.existsByMerchantCodeAndTblMasterMerchant(input.getMerchantCode(),masterMerchant)) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(new MessageResponse("Mã Code đã tồn tại"));
+        }
+        return ResponseEntity.ok("Thành Công");
     }
 }

@@ -52,4 +52,8 @@ public class MerchantBranchController {
     public ResponseEntity<?>list(){
         return merchantBranchService.list();
     }
+    @PostMapping("/checkCode")
+    public ResponseEntity<?>checkCode(@RequestBody CreatedMerchantBranchDTO input){
+        return merchantBranchService.checkCode(input);
+    }
 }

@@ -3,6 +3,7 @@ package com.napas.qr.qrrealtime.controllers;
 import com.napas.qr.qrrealtime.define.MerchantStatus;
 import com.napas.qr.qrrealtime.entity.TblMerchantPersonal;
 import com.napas.qr.qrrealtime.models.CreateMerchantPersonalDTO;
+import com.napas.qr.qrrealtime.models.CreatedMerchantBranchDTO;
 import com.napas.qr.qrrealtime.models.TblMerchantPersonalDTO;
 import com.napas.qr.qrrealtime.service.MerchantPersonalService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -66,5 +67,9 @@ public class MerchantPersonalController {
     @GetMapping()
     public ResponseEntity<?> get(){
         return merchantPersonalService.list();
+    }
+    @PostMapping("/checkCode")
+    public ResponseEntity<?>checkCode(@RequestBody CreateMerchantPersonalDTO input){
+        return merchantPersonalService.checkCode(input);
     }
 }

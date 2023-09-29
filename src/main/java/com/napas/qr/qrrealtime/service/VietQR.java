@@ -9,18 +9,32 @@ import com.google.zxing.BarcodeFormat;
 import com.google.zxing.EncodeHintType;
 import com.google.zxing.MultiFormatWriter;
 import com.google.zxing.WriterException;
+import com.google.zxing.client.j2se.MatrixToImageConfig;
 import com.google.zxing.client.j2se.MatrixToImageWriter;
 import com.google.zxing.common.BitMatrix;
+import com.napas.qr.qrrealtime.define.ETargetType;
 import com.napas.qr.qrrealtime.entity.TblMerchantCashier;
 import com.napas.qr.qrrealtime.entity.TblMerchantPersonal;
 import com.napas.qr.qrrealtime.repository.MerchantCashierRepository;
 import com.napas.qr.qrrealtime.repository.MerchantPersonalRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.core.io.ClassPathResource;
+import org.springframework.core.io.FileSystemResource;
+import org.springframework.core.io.Resource;
 import org.springframework.stereotype.Service;
 
+import javax.imageio.ImageIO;
 import javax.servlet.http.HttpServletResponse;
+import java.awt.*;
+import java.awt.image.BufferedImage;
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
 import java.io.OutputStream;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -30,6 +44,9 @@ import java.util.Map;
  */
 @Service
 public class VietQR extends BaseService {
+
+    private static final String outputDirectoryPath = "./report/image/outputImages";
+    Resource reOutput = new FileSystemResource(outputDirectoryPath);
 
     @Autowired
     private MerchantPersonalRepository merchantPersonalRepository;
@@ -42,39 +59,220 @@ public class VietQR extends BaseService {
 
     public void generateQRCode(HttpServletResponse response) {
         try {
-            String CONTENT = "Hello word";
-            Map<EncodeHintType, Object> hints = new HashMap<>();
-            hints.put(EncodeHintType.CHARACTER_SET, "UTF-8");
-            hints.put(EncodeHintType.MARGIN, 1);
-            BitMatrix bitMatrix = new MultiFormatWriter().encode(dataQr(),BarcodeFormat.QR_CODE, 200, 200, hints);
+            cleanAndInitOutputDirectory(reOutput);
+            BufferedImage qrCodeImage = generateQRCodeImage();
+            int qrCodeSize = qrCodeImage.getWidth();
+
+            BufferedImage LogoVietQR = getLogoImage("VietQRLogo.png");
+            BufferedImage logoNPandPV = getLogoImage("NPandPV.png");
+            BufferedImage borderImage = getLogoImage("VietQRBorder.png");
+
+            int originalLogoWidthNP = LogoVietQR.getWidth();
+            int originalLogoHeightNP = LogoVietQR.getHeight();
+            int logoWidth1 = 200;
+            int logoWidth2 = 240;
+            int newLogoHeight1 = (int) ((double) logoWidth1 / originalLogoWidthNP * originalLogoHeightNP);
+            int newLogoHeight2 = (int) ((double) logoWidth2 / originalLogoWidthNP * originalLogoHeightNP);
+            int borderImageWidth = borderImage.getWidth();
+            int borderImageHeight = borderImage.getHeight();
+            int borderImageNewWidth = borderImageWidth - 500;
+            int borderImageNewHeight = borderImageHeight - 650;
+
+            BufferedImage resizedLogo1 = new BufferedImage(logoWidth1, newLogoHeight1, BufferedImage.TYPE_INT_ARGB);
+            BufferedImage resizedLogo2 = new BufferedImage(logoWidth2, newLogoHeight2, BufferedImage.TYPE_INT_ARGB);
+            BufferedImage resizedBorderImage = new BufferedImage(borderImageNewWidth, borderImageNewHeight, BufferedImage.TYPE_INT_ARGB);
+            Graphics2D resizedBorderGraphics = resizedBorderImage.createGraphics();
+
+
+            resizedBorderGraphics.drawImage(borderImage, 0, 0, borderImageNewWidth, borderImageNewHeight, null);
+
+
+            BufferedImage combinedImage = new BufferedImage(borderImageNewWidth, borderImageNewHeight, BufferedImage.TYPE_INT_ARGB);
+            Graphics2D combinedGraphics = combinedImage.createGraphics();
+
+            combinedGraphics.drawImage(resizedBorderImage, 0, 0, null);
+            Graphics2D logoGraphics1 = resizedLogo1.createGraphics();
+            Graphics2D logoGraphics2 = resizedLogo2.createGraphics();
+            logoGraphics1.drawImage(LogoVietQR, 0, 0, logoWidth1, newLogoHeight1, null);
+            logoGraphics2.drawImage(logoNPandPV, 0, 0, logoWidth2, newLogoHeight2, null);
+            logoGraphics1.dispose();
+            logoGraphics2.dispose();
+            int qrCodeX = (borderImageNewWidth - qrCodeSize) / 2;
+            int qrCodeY = (borderImageNewHeight - qrCodeSize) / 2;
+            int logoX1 = (borderImageNewWidth - logoWidth1) / 2;
+            int logoY1 = qrCodeY - newLogoHeight1 ;
+            int logoX2 = (borderImageNewWidth - logoWidth2) / 2;
+            int logoY2 = qrCodeY + qrCodeSize;
+
+            // Hiển thị STK
+            FontMetrics fontMetricsAmount = combinedGraphics.getFontMetrics();
+            int textYAmount = qrCodeY + qrCodeSize + fontMetricsAmount.getHeight() + 60;
+            Font fontSTK = new Font("Times New Roman", Font.BOLD, 12);
+            combinedGraphics.setFont(fontSTK);
+            combinedGraphics.setColor(new Color(30, 66, 126));
+            FontMetrics fontMetricsSTK = combinedGraphics.getFontMetrics();
+            int textXSTK = (borderImageNewWidth - fontMetricsSTK.stringWidth(getAccountPersonal())) / 2;
+            int textYSTK = textYAmount;
+            combinedGraphics.drawString(getAccountPersonal(), textXSTK, textYSTK);
+
+            combinedGraphics.drawImage(qrCodeImage, qrCodeX, qrCodeY, null);
+            combinedGraphics.drawImage(resizedLogo1, logoX1, logoY1, null);
+            combinedGraphics.drawImage(resizedLogo2, logoX2, logoY2, null);
+
+            ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
+            ImageIO.write(combinedImage, "png", outputStream);
             response.setContentType("image/png");
-            OutputStream outputStream = response.getOutputStream();
-            MatrixToImageWriter.writeToStream(bitMatrix, "PNG", outputStream);
-            outputStream.close();
+            OutputStream responseOutputStream = response.getOutputStream();
+            responseOutputStream.write(outputStream.toByteArray());
+            responseOutputStream.close();
         } catch (WriterException e) {
             e.printStackTrace();
             response.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
         } catch (Exception e) {
             e.printStackTrace();
-            response.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
+            response.setStatus(HttpServletResponse.SC_UNAUTHORIZED, "Lỗi xử lý yêu cầu quyền");
+        }
+    }
+
+
+    private BufferedImage generateQRCodeImage() throws Exception {
+        Map<EncodeHintType, Object> hints = new HashMap<>();
+        hints.put(EncodeHintType.CHARACTER_SET, "UTF-8");
+        hints.put(EncodeHintType.MARGIN, 1);
+        BitMatrix bitMatrix = new MultiFormatWriter().encode(dataQr(),
+                BarcodeFormat.QR_CODE, 230, 230, hints);
+        return MatrixToImageWriter.toBufferedImage(bitMatrix, getMatrixConfig());
+    }
+
+    private BufferedImage generateQRCodeImageCashier() throws Exception {
+        Map<EncodeHintType, Object> hints = new HashMap<>();
+        hints.put(EncodeHintType.CHARACTER_SET, "UTF-8");
+        hints.put(EncodeHintType.MARGIN, 1);
+        BitMatrix bitMatrix = new MultiFormatWriter().encode(dataQrCashier(),
+                BarcodeFormat.QR_CODE, 230, 230, hints);
+        return MatrixToImageWriter.toBufferedImage(bitMatrix, getMatrixConfig());
+    }
+    private MatrixToImageConfig getMatrixConfig() {
+        return new MatrixToImageConfig(QrCodeColors.BLACK.getArgb(), QrCodeColors.WHITE.getArgb());
+    }
+    public enum QrCodeColors {
+        BLUE(0xFF40BAD0),
+        RED(0xFFE91C43),
+        PURPLE(0xFF8A4F9E),
+        ORANGE(0xFFF4B13D),
+        WHITE(0xFFFFFFFF),
+        BLACK(0xFF000000);
+
+        private final int argb;
+
+        QrCodeColors(final int argb) {
+            this.argb = argb;
+        }
+
+        public int getArgb() {
+            return argb;
+        }
+    }
+    private void cleanAndInitOutputDirectory( Resource reOutput) throws IOException {
+        Path outputDirectory = Paths.get(reOutput.getURI());
+        if (Files.exists(outputDirectory)) {
+            Files.walk(outputDirectory)
+                    .sorted((p1, p2) -> -p1.compareTo(p2))
+                    .forEach(path -> {
+                        try {
+                            Files.delete(path);
+                        } catch (IOException e) {
+                            e.printStackTrace();
+                        }
+                    });
+        } else {
+            Files.createDirectories(outputDirectory);
+        }
+    }
+    private BufferedImage getLogoImage(String logo) throws IOException {
+        Resource resource = new ClassPathResource("./report/image/QRimages/" + logo);
+        try (InputStream inputStream = resource.getInputStream()) {
+            return ImageIO.read(inputStream);
         }
     }
     public void generateQRCodeCashier(HttpServletResponse response) {
         try {
-            Map<EncodeHintType, Object> hints = new HashMap<>();
-            hints.put(EncodeHintType.CHARACTER_SET, "UTF-8");
-            hints.put(EncodeHintType.MARGIN, 1);
-            BitMatrix bitMatrix = new MultiFormatWriter().encode(dataQrCashier(), BarcodeFormat.QR_CODE, 200, 200, hints);
+            cleanAndInitOutputDirectory(reOutput);
+            BufferedImage qrCodeImage = generateQRCodeImageCashier();
+            int qrCodeSize = qrCodeImage.getWidth();
+
+            BufferedImage LogoVietQR = getLogoImage("VietQRLogo.png");
+            BufferedImage logoNPandPV = getLogoImage("NPandPV.png");
+            BufferedImage borderImage = getLogoImage("VietQRBorder.png");
+
+            int originalLogoWidthNP = LogoVietQR.getWidth();
+            int originalLogoHeightNP = LogoVietQR.getHeight();
+            int logoWidth1 = 200;
+            int logoWidth2 = 240;
+            int newLogoHeight1 = (int) ((double) logoWidth1 / originalLogoWidthNP * originalLogoHeightNP);
+            int newLogoHeight2 = (int) ((double) logoWidth2 / originalLogoWidthNP * originalLogoHeightNP);
+            int borderImageWidth = borderImage.getWidth();
+            int borderImageHeight = borderImage.getHeight();
+            int borderImageNewWidth = borderImageWidth - 500;
+            int borderImageNewHeight = borderImageHeight - 650;
+
+            BufferedImage resizedLogo1 = new BufferedImage(logoWidth1, newLogoHeight1, BufferedImage.TYPE_INT_ARGB);
+            BufferedImage resizedLogo2 = new BufferedImage(logoWidth2, newLogoHeight2, BufferedImage.TYPE_INT_ARGB);
+            BufferedImage resizedBorderImage = new BufferedImage(borderImageNewWidth, borderImageNewHeight, BufferedImage.TYPE_INT_ARGB);
+            Graphics2D resizedBorderGraphics = resizedBorderImage.createGraphics();
+
+
+            resizedBorderGraphics.drawImage(borderImage, 0, 0, borderImageNewWidth, borderImageNewHeight, null);
+
+
+            BufferedImage combinedImage = new BufferedImage(borderImageNewWidth, borderImageNewHeight, BufferedImage.TYPE_INT_ARGB);
+            Graphics2D combinedGraphics = combinedImage.createGraphics();
+
+
+
+            combinedGraphics.drawImage(resizedBorderImage, 0, 0, null);
+            Graphics2D logoGraphics1 = resizedLogo1.createGraphics();
+            Graphics2D logoGraphics2 = resizedLogo2.createGraphics();
+            logoGraphics1.drawImage(LogoVietQR, 0, 0, logoWidth1, newLogoHeight1, null);
+            logoGraphics2.drawImage(logoNPandPV, 0, 0, logoWidth2, newLogoHeight2, null);
+            logoGraphics1.dispose();
+            logoGraphics2.dispose();
+            int qrCodeX = (borderImageNewWidth - qrCodeSize) / 2;
+            int qrCodeY = (borderImageNewHeight - qrCodeSize) / 2;
+            int logoX1 = (borderImageNewWidth - logoWidth1) / 2;
+            int logoY1 = qrCodeY - newLogoHeight1 ;
+            int logoX2 = (borderImageNewWidth - logoWidth2) / 2;
+            int logoY2 = qrCodeY + qrCodeSize;
+
+
+            // Hiển thị STK
+            FontMetrics fontMetricsAmount = combinedGraphics.getFontMetrics();
+            int textYAmount = qrCodeY + qrCodeSize + fontMetricsAmount.getHeight() + 60;
+            Font fontSTK = new Font("Times New Roman", Font.BOLD, 12);
+            combinedGraphics.setFont(fontSTK);
+            combinedGraphics.setColor(new Color(30, 66, 126));
+            FontMetrics fontMetricsSTK = combinedGraphics.getFontMetrics();
+            int textXSTK = (borderImageNewWidth - fontMetricsSTK.stringWidth(getAccountCashier())) / 2;
+            int textYSTK = textYAmount;
+            combinedGraphics.drawString(getAccountCashier(), textXSTK, textYSTK);
+
+
+            combinedGraphics.drawImage(qrCodeImage, qrCodeX, qrCodeY, null);
+            combinedGraphics.drawImage(resizedLogo1, logoX1, logoY1, null);
+            combinedGraphics.drawImage(resizedLogo2, logoX2, logoY2, null);
+
+            ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
+            ImageIO.write(combinedImage, "png", outputStream);
             response.setContentType("image/png");
-            OutputStream outputStream = response.getOutputStream();
-            MatrixToImageWriter.writeToStream(bitMatrix, "PNG", outputStream);
-            outputStream.close();
+            OutputStream responseOutputStream = response.getOutputStream();
+            responseOutputStream.write(outputStream.toByteArray());
+            responseOutputStream.close();
         } catch (WriterException e) {
             e.printStackTrace();
             response.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
         } catch (Exception e) {
             e.printStackTrace();
-            response.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
+            response.setStatus(HttpServletResponse.SC_UNAUTHORIZED, "Lỗi xử lý yêu cầu quyền");
         }
     }
     public String  dataQr(){
@@ -93,6 +291,26 @@ public class VietQR extends BaseService {
                 merchantCashier.getCashierCode();
         String qrCodeData = getVietQrNotAmount(bankId, data);
         return qrCodeData;
+    }
+
+    public String getAccountCashier() {
+        if (getUserDetails().getTargetType() == ETargetType.CASHIER) {
+            Long cashierId = getUserDetails().getCashier().getId();
+            TblMerchantCashier merchantCashier = merchantCashierRepository.findById(cashierId).orElse(null);
+            String account = merchantCashier.getTblMerchantBranch().getCreditorAccount();
+            return "Số TK: " + account;
+        }
+        return null;
+    }
+
+    public String getAccountPersonal() {
+        if (getUserDetails().getTargetType() == ETargetType.PERSONAL) {
+            Long merchantId = getUserDetails().getMerchantPersonal().getId();
+            TblMerchantPersonal merchantPersonal = merchantPersonalRepository.findById(merchantId).orElse(null);
+            String account = merchantPersonal.getCreditorAccount();
+            return "Số TK: " + account;
+        }
+        return null;
     }
 
     public static int crc16(final byte[] buffer) {
@@ -149,38 +367,4 @@ public class VietQR extends BaseService {
 
     }
 
-    public static String getVietQr(String bankid, String bankacc, String amount, String description) {
-        if (bankid.isEmpty() || bankacc.isEmpty() || bankid.length() < 6) {
-            return "";//not valid
-        }
-
-        if (amount.isEmpty() || amount.length() > 13) {
-            return getVietQrNotAmount(bankid, bankacc);
-        }
-        String vietQRCode = "000201010212";
-        String dvcntt = "0010A000000727";
-        String subBenOrg = "00" + String.format("%02d", bankid.length()) + bankid
-                + "01" + String.format("%02d", bankacc.length()) + bankacc;
-        String BenOrg = "01" + String.format("%02d", subBenOrg.length()) + subBenOrg;
-        dvcntt += BenOrg + "0208QRIBFTTA";
-        vietQRCode += "38" + String.format("%02d", dvcntt.length()) + dvcntt;
-        vietQRCode += "530370454" + String.format("%02d", amount.length()) + amount + "5802VN";
-        if (!description.isEmpty()) {
-
-            String desc = "08" + String.format("%02d", description.length()) + description;
-            vietQRCode += "62" + String.format("%02d", desc.length()) + desc;
-        }
-        vietQRCode += "6304";
-        String crcCode = getCrc16Valid(vietQRCode);
-        vietQRCode += crcCode.toUpperCase();
-        //Log.d(TAG,"vietQR "+vietQRCode);
-        return vietQRCode;
-    }
-
-    public static String fm02Leng(int leng) {
-        if (leng > 10) {
-            return "" + leng;
-        }
-        return "0" + leng;
-    }
 }

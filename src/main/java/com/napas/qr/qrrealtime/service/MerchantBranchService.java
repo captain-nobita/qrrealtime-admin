@@ -70,7 +70,7 @@ public class MerchantBranchService extends BaseService {
 
             TblMerchantCorporate merchant = getUserDetails().getMerchant();
             if (merchantBranchRepository.existsByBranchCodeAndTblMerchantCorporate(input.getBranchCode(), merchant)) {
-                return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(new MessageResponse("BranchCode đã tồn tại"));
+                return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(new MessageResponse("Mã Code đã tồn tại"));
             }
             tblMerchantBranch.setBranchCode(input.getBranchCode());
             TblMerchantCorporate merchantCorporate = merchantCorporateRepository.findById(merchant.getId()).orElse(null);
@@ -145,5 +145,12 @@ public class MerchantBranchService extends BaseService {
             return ResponseEntity.ok(list);
         }
         return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(new MessageResponse("Không tồn tại Branch này"));
+    }
+    public ResponseEntity<?> checkCode(CreatedMerchantBranchDTO input){
+        TblMerchantCorporate merchant = getUserDetails().getMerchant();
+        if (merchantBranchRepository.existsByBranchCodeAndTblMerchantCorporate(input.getBranchCode(), merchant)) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(new MessageResponse("Mã Code đã tồn tại"));
+        }
+        return ResponseEntity.ok("Thành Công");
     }
 }

@@ -3,6 +3,7 @@ package com.napas.qr.qrrealtime.service;
 import com.napas.qr.qrrealtime.define.*;
 import com.napas.qr.qrrealtime.entity.*;
 import com.napas.qr.qrrealtime.models.CreatedMerchantCorporateDTO;
+import com.napas.qr.qrrealtime.models.MerchantCashierDTO;
 import com.napas.qr.qrrealtime.models.TblMerchantCorporateDTO;
 import com.napas.qr.qrrealtime.payload.response.MessageResponse;
 import com.napas.qr.qrrealtime.repository.DistrictRepository;
@@ -72,7 +73,7 @@ public class MerchantCorporateService extends BaseService {
             }
             tblMerchantCorporate.setName(input.getName());
             if (merchantCorporateRepository.existsByMerchantCodeAndTblMasterMerchant(input.getMerchantCode(), getUserDetails().getMasterMerchant())) {
-                return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(new MessageResponse("MerchantCode đã tồn tại"));
+                return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(new MessageResponse("Mã Code đã tồn tại"));
             }
             if (input.getMerchantCode().length()>3 || input.getMerchantCode().length()<3){
                 return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(new MessageResponse("MerchantCode là chuỗi gồm 3 kí tự"));
@@ -170,5 +171,12 @@ public class MerchantCorporateService extends BaseService {
             return ResponseEntity.ok(list);
         }
         return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(new MessageResponse("Không tồn tại Master Merchant này"));
+    }
+    public ResponseEntity<?> checkCode(CreatedMerchantCorporateDTO input){
+        TblMasterMerchant masterMerchant = getUserDetails().getMasterMerchant();
+        if (merchantCorporateRepository.existsByMerchantCodeAndTblMasterMerchant(input.getMerchantCode(), masterMerchant)) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(new MessageResponse("Mã Code đã tồn tại"));
+        }
+        return ResponseEntity.ok("Thành Công");
     }
 }

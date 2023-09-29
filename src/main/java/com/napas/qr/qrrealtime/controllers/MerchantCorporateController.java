@@ -1,6 +1,7 @@
 package com.napas.qr.qrrealtime.controllers;
 
 import com.napas.qr.qrrealtime.define.MerchantStatus;
+import com.napas.qr.qrrealtime.models.CreatedMerchantBranchDTO;
 import com.napas.qr.qrrealtime.models.CreatedMerchantCorporateDTO;
 import com.napas.qr.qrrealtime.service.MerchantCorporateService;
 import org.slf4j.Logger;
@@ -58,5 +59,9 @@ public class MerchantCorporateController {
     @GetMapping()
     public ResponseEntity<?>list(){
         return merchantCorporateService.list();
+    }
+    @PostMapping("/checkCode")
+    public ResponseEntity<?>checkCode(@RequestBody CreatedMerchantCorporateDTO input){
+        return merchantCorporateService.checkCode(input);
     }
 }

@@ -1,6 +1,7 @@
 package com.napas.qr.qrrealtime.controllers;
 
 import com.napas.qr.qrrealtime.define.MerchantStatus;
+import com.napas.qr.qrrealtime.models.CreatedMerchantBranchDTO;
 import com.napas.qr.qrrealtime.models.MerchantCashierDTO;
 import com.napas.qr.qrrealtime.service.MerchantCashierService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -45,5 +46,9 @@ public class MerchantCashierController {
     @GetMapping()
     public ResponseEntity<?>list(){
         return merchantCashierService.list();
+    }
+    @PostMapping("/checkCode")
+    public ResponseEntity<?>checkCode(@RequestBody MerchantCashierDTO input){
+        return merchantCashierService.checkCode(input);
     }
 }

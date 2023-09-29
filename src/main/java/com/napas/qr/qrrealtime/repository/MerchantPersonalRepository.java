@@ -1,6 +1,7 @@
 package com.napas.qr.qrrealtime.repository;
 
 import com.napas.qr.qrrealtime.define.MerchantStatus;
+import com.napas.qr.qrrealtime.entity.TblMasterMerchant;
 import com.napas.qr.qrrealtime.entity.TblMerchantPersonal;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -14,7 +15,7 @@ import java.util.List;
 @Repository
 public interface MerchantPersonalRepository extends JpaRepository<TblMerchantPersonal, Long> {
 
-    Boolean existsByMerchantCode(String merchantCode);
+    Boolean existsByMerchantCodeAndTblMasterMerchant(String merchantCode, TblMasterMerchant masterMerchant);
 
     @Query("SELECT T FROM TblMerchantPersonal T WHERE " +
             " (T.name like %:name% or :name is null) " +

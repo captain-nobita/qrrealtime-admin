@@ -67,6 +67,7 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
                 .antMatchers("/mngweb/api/portal/captcha").permitAll()
                 .antMatchers("/mngweb/api/healthcheck").permitAll()
                 .antMatchers("/mngweb/images/napas.png").permitAll()
+                .antMatchers("/mngweb/no-auth/api/redirect/**").permitAll()
                 .antMatchers(
                         "/mngweb/static/**",
                         "/mngweb/images/**",
