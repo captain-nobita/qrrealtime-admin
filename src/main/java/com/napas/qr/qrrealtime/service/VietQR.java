@@ -39,7 +39,6 @@ import java.util.HashMap;
 import java.util.Map;
 
 /**
- *
  * @author huynx
  */
 @Service
@@ -100,7 +99,7 @@ public class VietQR extends BaseService {
             int qrCodeX = (borderImageNewWidth - qrCodeSize) / 2;
             int qrCodeY = (borderImageNewHeight - qrCodeSize) / 2;
             int logoX1 = (borderImageNewWidth - logoWidth1) / 2;
-            int logoY1 = qrCodeY - newLogoHeight1 ;
+            int logoY1 = qrCodeY - newLogoHeight1;
             int logoX2 = (borderImageNewWidth - logoWidth2) / 2;
             int logoY2 = qrCodeY + qrCodeSize;
 
@@ -120,7 +119,7 @@ public class VietQR extends BaseService {
             FontMetrics fontMetricsTTK = combinedGraphics.getFontMetrics();
             int textXTTK = (borderImageNewWidth - fontMetricsTTK.stringWidth(getNamePersonal())) / 2;
             int textYTTK = textYAmount + 15;
-            combinedGraphics.drawString(getNamePersonal(),textXTTK, textYTTK);
+            combinedGraphics.drawString(getNamePersonal(), textXTTK, textYTTK);
 
             combinedGraphics.drawImage(qrCodeImage, qrCodeX, qrCodeY, null);
             combinedGraphics.drawImage(resizedLogo1, logoX1, logoY1, null);
@@ -151,17 +150,19 @@ public class VietQR extends BaseService {
         return MatrixToImageWriter.toBufferedImage(bitMatrix, getMatrixConfig());
     }
 
-    private BufferedImage generateQRCodeImageCashier() throws Exception {
+    private BufferedImage generateQRCodeImageCashier(Long cashierId) throws Exception {
         Map<EncodeHintType, Object> hints = new HashMap<>();
         hints.put(EncodeHintType.CHARACTER_SET, "UTF-8");
         hints.put(EncodeHintType.MARGIN, 1);
-        BitMatrix bitMatrix = new MultiFormatWriter().encode(dataQrCashier(),
+        BitMatrix bitMatrix = new MultiFormatWriter().encode(dataQrCashier(cashierId),
                 BarcodeFormat.QR_CODE, 230, 230, hints);
         return MatrixToImageWriter.toBufferedImage(bitMatrix, getMatrixConfig());
     }
+
     private MatrixToImageConfig getMatrixConfig() {
         return new MatrixToImageConfig(QrCodeColors.BLACK.getArgb(), QrCodeColors.WHITE.getArgb());
     }
+
     public enum QrCodeColors {
         BLUE(0xFF40BAD0),
         RED(0xFFE91C43),
@@ -180,7 +181,8 @@ public class VietQR extends BaseService {
             return argb;
         }
     }
-    private void cleanAndInitOutputDirectory( Resource reOutput) throws IOException {
+
+    private void cleanAndInitOutputDirectory(Resource reOutput) throws IOException {
         Path outputDirectory = Paths.get(reOutput.getURI());
         if (Files.exists(outputDirectory)) {
             Files.walk(outputDirectory)
@@ -196,16 +198,18 @@ public class VietQR extends BaseService {
             Files.createDirectories(outputDirectory);
         }
     }
+
     private BufferedImage getLogoImage(String logo) throws IOException {
         Resource resource = new ClassPathResource("./report/image/QRimages/" + logo);
         try (InputStream inputStream = resource.getInputStream()) {
             return ImageIO.read(inputStream);
         }
     }
-    public void generateQRCodeCashier(HttpServletResponse response) {
+
+    public void generateQRCodeCashier(HttpServletResponse response, Long cashierId) {
         try {
             cleanAndInitOutputDirectory(reOutput);
-            BufferedImage qrCodeImage = generateQRCodeImageCashier();
+            BufferedImage qrCodeImage = generateQRCodeImageCashier(cashierId);
             int qrCodeSize = qrCodeImage.getWidth();
 
             BufferedImage LogoVietQR = getLogoImage("VietQRLogo.png");
@@ -236,7 +240,6 @@ public class VietQR extends BaseService {
             Graphics2D combinedGraphics = combinedImage.createGraphics();
 
 
-
             combinedGraphics.drawImage(resizedBorderImage, 0, 0, null);
             Graphics2D logoGraphics1 = resizedLogo1.createGraphics();
             Graphics2D logoGraphics2 = resizedLogo2.createGraphics();
@@ -247,7 +250,7 @@ public class VietQR extends BaseService {
             int qrCodeX = (borderImageNewWidth - qrCodeSize) / 2;
             int qrCodeY = (borderImageNewHeight - qrCodeSize) / 2;
             int logoX1 = (borderImageNewWidth - logoWidth1) / 2;
-            int logoY1 = qrCodeY - newLogoHeight1 ;
+            int logoY1 = qrCodeY - newLogoHeight1;
             int logoX2 = (borderImageNewWidth - logoWidth2) / 2;
             int logoY2 = qrCodeY + qrCodeSize;
 
@@ -259,9 +262,9 @@ public class VietQR extends BaseService {
             combinedGraphics.setFont(fontSTK);
             combinedGraphics.setColor(new Color(30, 66, 126));
             FontMetrics fontMetricsSTK = combinedGraphics.getFontMetrics();
-            int textXSTK = (borderImageNewWidth - fontMetricsSTK.stringWidth(getAccountCashier())) / 2;
+            int textXSTK = (borderImageNewWidth - fontMetricsSTK.stringWidth(getAccountCashier(cashierId))) / 2;
             int textYSTK = textYAmount;
-            combinedGraphics.drawString(getAccountCashier(), textXSTK, textYSTK);
+            combinedGraphics.drawString(getAccountCashier(cashierId), textXSTK, textYSTK);
 
 
             combinedGraphics.setFont(fontSTK);
@@ -269,7 +272,7 @@ public class VietQR extends BaseService {
             FontMetrics fontMetricsTTK = combinedGraphics.getFontMetrics();
             int textXTTK = (borderImageNewWidth - fontMetricsTTK.stringWidth(getNameCashier())) / 2;
             int textYTTK = textYAmount + 15;
-            combinedGraphics.drawString(getNameCashier(),textXTTK, textYTTK);
+            combinedGraphics.drawString(getNameCashier(), textXTTK, textYTTK);
 
 
             combinedGraphics.drawImage(qrCodeImage, qrCodeX, qrCodeY, null);
@@ -290,43 +293,55 @@ public class VietQR extends BaseService {
             response.setStatus(HttpServletResponse.SC_UNAUTHORIZED, "Lỗi xử lý yêu cầu quyền");
         }
     }
-    public String  dataQr(){
+
+    public String dataQr() {
         Long merchantId = getUserDetails().getMerchantPersonal().getId();
         TblMerchantPersonal merchantPersonal = merchantPersonalRepository.findById(merchantId).orElse(null);
-        String data = merchantPersonal.getTblSettleBank().getBankReceiveCode()+merchantPersonal.getTblMasterMerchant().getMmCode()+"000"+merchantPersonal.getMerchantCode() ;
+        String data = merchantPersonal.getTblSettleBank().getBankReceiveCode() + merchantPersonal.getTblMasterMerchant().getMmCode() + "000" + merchantPersonal.getMerchantCode();
         String qrCodeData = getVietQrNotAmount(bankId, data);
         return qrCodeData;
     }
 
-    public String dataQrCashier(){
-        Long cashierId= getUserDetails().getCashier().getId();
-        TblMerchantCashier merchantCashier = merchantCashierRepository.findById(cashierId).orElse(null);
-        String data= merchantCashier.getTblMerchantBranch().getTblSettleBank().getBankReceiveCode() +merchantCashier.getTblMerchantBranch().getTblMerchantCorporate().getTblMasterMerchant().getMmCode()+
-                merchantCashier.getTblMerchantBranch().getTblMerchantCorporate().getMerchantCode()+merchantCashier.getTblMerchantBranch().getBranchCode()+
-                merchantCashier.getCashierCode();
-        String qrCodeData = getVietQrNotAmount(bankId, data);
-        return qrCodeData;
+    public String dataQrCashier(Long cashierId) {
+        if (getUserDetails().getTargetType().equals(ETargetType.CASHIER)) {
+            TblMerchantCashier merchantCashier = getUserDetails().getCashier();
+            String data = merchantCashier.getTblMerchantBranch().getTblSettleBank().getBankReceiveCode() + merchantCashier.getTblMerchantBranch().getTblMerchantCorporate().getTblMasterMerchant().getMmCode() +
+                    merchantCashier.getTblMerchantBranch().getTblMerchantCorporate().getMerchantCode() + merchantCashier.getTblMerchantBranch().getBranchCode() +
+                    merchantCashier.getCashierCode();
+            String qrCodeData = getVietQrNotAmount(bankId, data);
+            return qrCodeData;
+        } else {
+            TblMerchantCashier tblMerchantCashier = merchantCashierRepository.findById(cashierId).orElse(null);
+            String data = tblMerchantCashier.getTblMerchantBranch().getTblSettleBank().getBankReceiveCode() + tblMerchantCashier.getTblMerchantBranch().getTblMerchantCorporate().getTblMasterMerchant().getMmCode() +
+                    tblMerchantCashier.getTblMerchantBranch().getTblMerchantCorporate().getMerchantCode() + tblMerchantCashier.getTblMerchantBranch().getBranchCode() +
+                    tblMerchantCashier.getCashierCode();
+            String qrCodeData = getVietQrNotAmount(bankId, data);
+            return qrCodeData;
+        }
     }
 
-    public String getAccountCashier() {
+    public String getAccountCashier(Long cashierId ) {
         if (getUserDetails().getTargetType() == ETargetType.CASHIER) {
-            Long cashierId = getUserDetails().getCashier().getId();
-            TblMerchantCashier merchantCashier = merchantCashierRepository.findById(cashierId).orElse(null);
-            String data= merchantCashier.getTblMerchantBranch().getTblSettleBank().getBankReceiveCode() +merchantCashier.getTblMerchantBranch().getTblMerchantCorporate().getTblMasterMerchant().getMmCode()+
-                    merchantCashier.getTblMerchantBranch().getTblMerchantCorporate().getMerchantCode()+merchantCashier.getTblMerchantBranch().getBranchCode()+
+            TblMerchantCashier merchantCashier = getUserDetails().getCashier();
+            String data = merchantCashier.getTblMerchantBranch().getTblSettleBank().getBankReceiveCode() + merchantCashier.getTblMerchantBranch().getTblMerchantCorporate().getTblMasterMerchant().getMmCode() +
+                    merchantCashier.getTblMerchantBranch().getTblMerchantCorporate().getMerchantCode() + merchantCashier.getTblMerchantBranch().getBranchCode() +
                     merchantCashier.getCashierCode();
             return "Số TK: " + data;
+        }else {
+            TblMerchantCashier tblMerchantCashier = merchantCashierRepository.findById(cashierId).orElse(null);
+            String data = tblMerchantCashier.getTblMerchantBranch().getTblSettleBank().getBankReceiveCode() + tblMerchantCashier.getTblMerchantBranch().getTblMerchantCorporate().getTblMasterMerchant().getMmCode() +
+                    tblMerchantCashier.getTblMerchantBranch().getTblMerchantCorporate().getMerchantCode() + tblMerchantCashier.getTblMerchantBranch().getBranchCode() +
+                    tblMerchantCashier.getCashierCode();
+            return "Số TK: " + data;
         }
-        return null;
     }
-
 
 
     public String getAccountPersonal() {
         if (getUserDetails().getTargetType() == ETargetType.PERSONAL) {
             Long merchantId = getUserDetails().getMerchantPersonal().getId();
             TblMerchantPersonal merchantPersonal = merchantPersonalRepository.findById(merchantId).orElse(null);
-            String data = merchantPersonal.getTblSettleBank().getBankReceiveCode()+merchantPersonal.getTblMasterMerchant().getMmCode()+"000"+merchantPersonal.getMerchantCode() ;
+            String data = merchantPersonal.getTblSettleBank().getBankReceiveCode() + merchantPersonal.getTblMasterMerchant().getMmCode() + "000" + merchantPersonal.getMerchantCode();
             return "Số TK: " + data;
         }
         return null;
@@ -336,19 +351,23 @@ public class VietQR extends BaseService {
         if (getUserDetails().getTargetType() == ETargetType.CASHIER) {
             TblMerchantBranch branch = getUserDetails().getBranch();
             TblMerchantCorporate merchantCorporate = getUserDetails().getMerchant();
-            String data=VNCharacterUtils.removeAccent(merchantCorporate.getName() +" - "+branch.getName()) ;
+            String data = VNCharacterUtils.removeAccent(merchantCorporate.getName() + " - " + branch.getName());
+            return "Tên Tài Khoản: " + data;
+        }else if (getUserDetails().getTargetType() == ETargetType.BRANCH){
+            TblMerchantBranch branch = getUserDetails().getBranch();
+            TblMerchantCorporate merchantCorporate = getUserDetails().getMerchant();
+            String data = VNCharacterUtils.removeAccent(merchantCorporate.getName() + " - " + branch.getName());
             return "Tên Tài Khoản: " + data;
         }
         return null;
     }
 
 
-
     public String getNamePersonal() {
         if (getUserDetails().getTargetType() == ETargetType.PERSONAL) {
             TblMasterMerchant masterMerchant = getUserDetails().getMasterMerchant();
             TblMerchantPersonal merchantPersonal = getUserDetails().getMerchantPersonal();
-            String data =VNCharacterUtils.removeAccent(masterMerchant.getName() + " - " + merchantPersonal.getName());
+            String data = VNCharacterUtils.removeAccent(masterMerchant.getName() + " - " + merchantPersonal.getName());
             return "Tên Tài Khoản: " + data;
         }
         return null;
@@ -407,5 +426,4 @@ public class VietQR extends BaseService {
         return vietQRCode;
 
     }
-
 }

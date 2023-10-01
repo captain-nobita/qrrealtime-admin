@@ -57,6 +57,12 @@ public class AuthController {
         if (user == null){
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(new MessageResponse("Thông tin tài khoản không hợp lệ"));
         }
+        var session = request.getSession();
+        var captchAnswer = session.getAttribute(CaptchaController.SessionCaptchaAnswer);
+        session.removeAttribute(CaptchaController.SessionCaptchaAnswer);
+        if (captchAnswer == null || !captchAnswer.equals(loginRequest.getCaptcha())) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(new MessageResponse("Captcha Không khớp"));
+        }
         if (user.getStatus().equals(MerchantStatus.APPROVED)){
             Authentication authentication = authenticationManager.authenticate(
                     new UsernamePasswordAuthenticationToken(loginRequest.getUsername(), loginRequest.getPassword()));
