@@ -61,7 +61,7 @@ public class HisCreateBankAccountRequest implements Serializable {
     
     @Basic(optional = false)
     @Column(name = "SETTLE_BANK_ID")
-    private int settleBankId;
+    private Long settleBankId;
 
     public HisCreateBankAccountRequest() {
     }
@@ -125,11 +125,11 @@ public class HisCreateBankAccountRequest implements Serializable {
         this.createdBy = createdBy;
     }
 
-    public int getSettleBankId() {
+    public Long getSettleBankId() {
         return settleBankId;
     }
 
-    public void setSettleBankId(int settleBankId) {
+    public void setSettleBankId(Long settleBankId) {
         this.settleBankId = settleBankId;
     }
 

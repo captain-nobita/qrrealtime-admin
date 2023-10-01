@@ -6,6 +6,7 @@ package com.napas.qr.qrrealtime.entity;/*
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.napas.qr.qrrealtime.define.MerchantStatus;
 import com.napas.qr.qrrealtime.define.PaymentAcceptStatus;
+import lombok.Data;
 
 import java.io.Serializable;
 import java.util.Date;
@@ -21,14 +22,13 @@ import javax.validation.constraints.Size;
 @Table(name = "TBL_MERCHANT_PERSONAL")
 @NamedQueries({
     @NamedQuery(name = "TblMerchantPersonal.findAll", query = "SELECT t FROM TblMerchantPersonal t")})
+@Data
 public class TblMerchantPersonal implements Serializable {
 
     private static final long serialVersionUID = 1L;
     @Id
     @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "SEQ_TBL_MERCHANT_PERSONAL")
     @SequenceGenerator(sequenceName = "SEQ_TBL_MERCHANT_PERSONAL", allocationSize = 1, name = "SEQ_TBL_MERCHANT_PERSONAL")
-    @Basic(optional = false)
-    @NotNull
     @Column(name = "ID")
     private Long id;
 
@@ -48,31 +48,37 @@ public class TblMerchantPersonal implements Serializable {
     @Size(min = 1, max = 500)
     @Column(name = "NAME")
     private String name;
+
     @Size(max = 20)
     @Column(name = "PHONE_NUMBER")
     private String phoneNumber;
+
     @Size(max = 1000)
     @Column(name = "ADDRESS_LINE")
     private String addressLine;
+
     @Basic(optional = false)
-    @NotNull
     @Column(name = "DATE_CREATED")
     @Temporal(TemporalType.TIMESTAMP)
     private Date dateCreated;
+
     @Column(name = "DATE_MODIFIED")
     @Temporal(TemporalType.TIMESTAMP)
     private Date dateModified;
+
     @Basic(optional = false)
     @NotNull
     @Column(name = "CREATED_BY_USER")
     private long createdByUser;
+
     @Column(name = "MODIFIED_BY_USER")
     private Long modifiedByUser;
     @Basic(optional = false)
-    @NotNull
-    @Size(min = 1, max = 30)
+
+
     @Column(name = "CREDITOR_ACCOUNT")
     private String creditorAccount;
+
     @Basic(optional = false)
     @NotNull
     @Enumerated(EnumType.STRING)

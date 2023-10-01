@@ -21,23 +21,23 @@ public interface MerchantPersonalRepository extends JpaRepository<TblMerchantPer
             " (T.name like %:name% or :name is null) " +
             " AND (T.status=:status or :status is null) " +
             " AND(T.merchantCode=:merchantCode or :merchantCode is null)" +
-            " AND(T.tblMasterMerchant.id = :id or :id is null)" +
+            " AND(T.tblMasterMerchant = :tblMasterMerchant or :tblMasterMerchant is null)" +
             " AND(T.id = :targetId or :targetId is null )" +
             " AND(T.status <> 'DELETED') ")
     Page<TblMerchantPersonal> search(Pageable pageable,
                                      @Param("name") String name,
                                      @Param("status") MerchantStatus status,
                                      @Param("merchantCode") String merchantCode,
-                                     @Param("id") Long id,
+                                     @Param("tblMasterMerchant") TblMasterMerchant tblMasterMerchant,
                                      @Param("targetId")Long targetId);
 
 
     @Query("SELECT T FROM TblMerchantPersonal T WHERE " +
-            " (T.tblMasterMerchant.id = :id or :id is null) " +
+            " (T.tblMasterMerchant = :tblMasterMerchant or :tblMasterMerchant is null) " +
             " AND(T.id= :targetId or :targetId is null )" +
             " AND(T.status = :status or :status is null) ")
     List<TblMerchantPersonal> get(
-            @Param("id") Long id,
+            @Param("tblMasterMerchant") TblMasterMerchant tblMasterMerchant,
             @Param("targetId") Long targetId,
             @Param("status") MerchantStatus status);
 }

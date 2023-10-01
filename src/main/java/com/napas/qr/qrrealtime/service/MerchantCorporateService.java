@@ -52,11 +52,11 @@ public class MerchantCorporateService extends BaseService {
     public ResponseEntity<?> search(Pageable paging, String name, MerchantStatus status, String merchantCode) {
         if (getUserDetails().getTargetType().equals(ETargetType.MASTER)){
             TblMasterMerchant masterMerchant = getUserDetails().getMasterMerchant();
-            Page<TblMerchantCorporate> dbResult  = merchantCorporateRepository.search(paging,name,status,merchantCode, masterMerchant.getId(),null);
+            Page<TblMerchantCorporate> dbResult  = merchantCorporateRepository.search(paging,name,status,merchantCode, masterMerchant,null);
             return ResponseEntity.ok(dbResult.map(entity -> fromEntity(entity)));
         } else if (getUserDetails().getTargetType().equals(ETargetType.MERCHANT)){
             TblMasterMerchant masterMerchant = getUserDetails().getMasterMerchant();
-            Page<TblMerchantCorporate> dbResult  = merchantCorporateRepository.search(paging,name,status,merchantCode, masterMerchant.getId(),getTargetId());
+            Page<TblMerchantCorporate> dbResult  = merchantCorporateRepository.search(paging,name,status,merchantCode, masterMerchant,getTargetId());
             return ResponseEntity.ok(dbResult.map(entity -> fromEntity(entity)));
         }
         else {
@@ -78,7 +78,7 @@ public class MerchantCorporateService extends BaseService {
             if (input.getMerchantCode().length()>3 || input.getMerchantCode().length()<3){
                 return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(new MessageResponse("MerchantCode là chuỗi gồm 3 kí tự"));
             }
-            tblMerchantCorporate.setMerchantCode(input.getMerchantCode());
+            tblMerchantCorporate.setMerchantCode(input.getMerchantCode().toUpperCase());
             TblDistrict district = districtRepository.findById(input.getDistrictId()).orElse(null);
             tblMerchantCorporate.setTblDistrict(district);
             tblMerchantCorporate.setAddressLine(input.getAddressLine());
@@ -164,10 +164,10 @@ public class MerchantCorporateService extends BaseService {
     public ResponseEntity<?> list(){
         TblMasterMerchant masterMerchant = getUserDetails().getMasterMerchant();
         if (getUserDetails().getTargetType().equals(ETargetType.MASTER)){
-            List<TblMerchantCorporate> list = merchantCorporateRepository.get(masterMerchant.getId(), null);
+            List<TblMerchantCorporate> list = merchantCorporateRepository.get(masterMerchant, null);
             return ResponseEntity.ok(list);
         } else if (getUserDetails().getTargetType().equals(ETargetType.MERCHANT)){
-            List<TblMerchantCorporate> list = merchantCorporateRepository.get(masterMerchant.getId(),getTargetId());
+            List<TblMerchantCorporate> list = merchantCorporateRepository.get(masterMerchant,getTargetId());
             return ResponseEntity.ok(list);
         }
         return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(new MessageResponse("Không tồn tại Master Merchant này"));

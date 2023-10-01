@@ -16,6 +16,8 @@ public class HisCreateBankAccountRequestDTO {
 
     @JsonInclude(JsonInclude.Include.NON_NULL)
     private String accountNumber;
+
+    private String bankName;
     
     private ECreateBankAccountRequestStatus status;
     
@@ -31,6 +33,14 @@ public class HisCreateBankAccountRequestDTO {
 
     public String getAccountNumber() {
         return accountNumber;
+    }
+
+    public String getBankName() {
+        return bankName;
+    }
+
+    public void setBankName(String bankName) {
+        this.bankName = bankName;
     }
 
     public void setAccountNumber(String accountNumber) {

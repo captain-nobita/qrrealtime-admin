@@ -7,6 +7,7 @@ import com.napas.qr.qrrealtime.define.PaymentAcceptStatus;
 import com.napas.qr.qrrealtime.entity.*;
 import com.napas.qr.qrrealtime.models.CreatedMerchantBranchDTO;
 import com.napas.qr.qrrealtime.models.TblMerchantBranchDTO;
+import com.napas.qr.qrrealtime.models.UpdateAccountBankDTO;
 import com.napas.qr.qrrealtime.payload.response.MessageResponse;
 import com.napas.qr.qrrealtime.repository.MerchantBranchRepository;
 import com.napas.qr.qrrealtime.repository.MerchantCorporateRepository;
@@ -43,7 +44,10 @@ public class MerchantBranchService extends BaseService {
 
     private TblMerchantBranchDTO fromEntity(TblMerchantBranch entity) {
         TblMerchantBranchDTO dto = modelMapper.map(entity, TblMerchantBranchDTO.class);
-        dto.setSettleBankId(entity.getTblSettleBank().getId());
+        if (entity.getTblSettleBank() != null){
+            dto.setSettleBankId(entity.getTblSettleBank().getId());
+            return dto;
+        }
         return dto;
     }
 
@@ -51,10 +55,10 @@ public class MerchantBranchService extends BaseService {
         TblMerchantCorporate merchantCorporate= getUserDetails().getMerchant();
         TblMasterMerchant masterMerchant = getUserDetails().getMasterMerchant();
         if (getUserDetails().getTargetType().equals(ETargetType.MERCHANT)){
-            Page<TblMerchantBranch> dbResult  = merchantBranchRepository.search(paging,branchName,status,branchCode, merchantCorporate.getId(), null, masterMerchant.getId());
+            Page<TblMerchantBranch> dbResult  = merchantBranchRepository.search(paging,branchName,status,branchCode, merchantCorporate, null, masterMerchant);
             return ResponseEntity.ok(dbResult.map(entity -> fromEntity(entity)));
         } else if (getUserDetails().getTargetType().equals(ETargetType.BRANCH)){
-            Page<TblMerchantBranch> dbResult  = merchantBranchRepository.search(paging,branchName,status,branchCode, merchantCorporate.getId(), getTargetId(), masterMerchant.getId());
+            Page<TblMerchantBranch> dbResult  = merchantBranchRepository.search(paging,branchName,status,branchCode, merchantCorporate, getTargetId(), masterMerchant);
             return ResponseEntity.ok(dbResult.map(entity -> fromEntity(entity)));
         }
         else{
@@ -72,19 +76,13 @@ public class MerchantBranchService extends BaseService {
             if (merchantBranchRepository.existsByBranchCodeAndTblMerchantCorporate(input.getBranchCode(), merchant)) {
                 return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(new MessageResponse("Mã Code đã tồn tại"));
             }
-            tblMerchantBranch.setBranchCode(input.getBranchCode());
+            tblMerchantBranch.setBranchCode(input.getBranchCode().toUpperCase());
             TblMerchantCorporate merchantCorporate = merchantCorporateRepository.findById(merchant.getId()).orElse(null);
 
             tblMerchantBranch.setTblMerchantCorporate(merchantCorporate);
             tblMerchantBranch.setStatus(MerchantStatus.APPROVED);
             tblMerchantBranch.setDateCreated(new Date());
             tblMerchantBranch.setCreatedByUser(getUserId());
-            if (input.getSettleBankId() == null){
-                return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(new MessageResponse("Bạn chưa nhập ngân hàng thụ hưởng"));
-            }
-            TblSettleBank tblSettleBank = settleBankRepository.findById(input.getSettleBankId()).orElse(null);
-            tblMerchantBranch.setTblSettleBank(tblSettleBank);
-            tblMerchantBranch.setCreditorAccount(input.getCreditorAccount());
             tblMerchantBranch.setName(input.getName());
             tblMerchantBranch.setPaymentAcceptanceStatus(PaymentAcceptStatus.READY);
 
@@ -106,12 +104,6 @@ public class MerchantBranchService extends BaseService {
 
             tblMerchantBranch.setModifiedByUser(getUserId());
             tblMerchantBranch.setDateModified(new Date());
-            if (input.getSettleBankId() == null){
-                return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(new MessageResponse("Bạn chưa nhập ngân hàng thụ hưởng"));
-            }
-            TblSettleBank tblSettleBank = settleBankRepository.findById(input.getSettleBankId()).orElse(null);
-            tblMerchantBranch.setTblSettleBank(tblSettleBank);
-            tblMerchantBranch.setCreditorAccount(input.getCreditorAccount());
             tblMerchantBranch.setName(input.getName());
 
             TblMerchantBranch savedData = merchantBranchRepository.save(tblMerchantBranch);
@@ -119,9 +111,33 @@ public class MerchantBranchService extends BaseService {
             return ResponseEntity.ok(fromEntity(savedData));
         } else {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(new MessageResponse("Bạn không có quyền sửa Branch này"));
-
         }
     }
+    public ResponseEntity<?>updateAccount(Long id, UpdateAccountBankDTO input){
+
+        if (getUserDetails().getTargetType().equals(ETargetType.BRANCH) && getERole().equals(ERole.ADMIN)){
+
+            TblMerchantBranch merchantBranch = merchantBranchRepository.findById(id).orElse(null);
+            if (input.getSettleBankId() == null){
+                return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(new MessageResponse("Bạn chưa điền thông tin ngân hàng thụ hưởng"));
+            }
+            TblSettleBank settleBank = settleBankRepository.findById(input.getSettleBankId()).orElse(null);
+            merchantBranch.setTblSettleBank(settleBank);
+            if (input.getCreditorAccount().length()>20){
+                return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(new MessageResponse("Số tài khoản không vượt quá 20 kí tự"));
+            }
+            if (input.getCreditorAccount().length()<8){
+                return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(new MessageResponse("Số tài khoản không nhỏ hơn 8 kí tự"));
+            }
+            merchantBranch.setCreditorAccount(input.getCreditorAccount());
+
+            merchantBranchRepository.save(merchantBranch);
+
+            return ResponseEntity.ok(new MessageResponse("Suscess"));
+        }
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(new MessageResponse("Bạn chưa có quyền Tạo STK cho branch này "));
+    }
+
     public ResponseEntity<?> delete(Long id) {
         if (getUserDetails().getTargetType().equals(ETargetType.MERCHANT) || getUserDetails().getTargetType().equals(ETargetType.BRANCH) && getERole().equals(ERole.ADMIN) ){
             TblMerchantBranch merchant = merchantBranchRepository.findById(id).orElse(null);
@@ -138,10 +154,10 @@ public class MerchantBranchService extends BaseService {
 
         TblMerchantCorporate merchantCorporate = getUserDetails().getMerchant();
         if (getUserDetails().getTargetType().equals(ETargetType.MERCHANT)){
-            List<TblMerchantBranch> list = merchantBranchRepository.get(merchantCorporate.getId(), null);
+            List<TblMerchantBranch> list = merchantBranchRepository.get(merchantCorporate, null);
             return ResponseEntity.ok(list);
         } else if (getUserDetails().getTargetType().equals(ETargetType.BRANCH)){
-            List<TblMerchantBranch> list = merchantBranchRepository.get(merchantCorporate.getId(),getTargetId());
+            List<TblMerchantBranch> list = merchantBranchRepository.get(merchantCorporate,getTargetId());
             return ResponseEntity.ok(list);
         }
         return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(new MessageResponse("Không tồn tại Branch này"));

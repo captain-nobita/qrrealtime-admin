@@ -13,10 +13,10 @@ import com.google.zxing.client.j2se.MatrixToImageConfig;
 import com.google.zxing.client.j2se.MatrixToImageWriter;
 import com.google.zxing.common.BitMatrix;
 import com.napas.qr.qrrealtime.define.ETargetType;
-import com.napas.qr.qrrealtime.entity.TblMerchantCashier;
-import com.napas.qr.qrrealtime.entity.TblMerchantPersonal;
+import com.napas.qr.qrrealtime.entity.*;
 import com.napas.qr.qrrealtime.repository.MerchantCashierRepository;
 import com.napas.qr.qrrealtime.repository.MerchantPersonalRepository;
+import com.napas.qr.qrrealtime.utils.VNCharacterUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.io.ClassPathResource;
@@ -106,7 +106,7 @@ public class VietQR extends BaseService {
 
             // Hiển thị STK
             FontMetrics fontMetricsAmount = combinedGraphics.getFontMetrics();
-            int textYAmount = qrCodeY + qrCodeSize + fontMetricsAmount.getHeight() + 60;
+            int textYAmount = qrCodeY + qrCodeSize + fontMetricsAmount.getHeight() + 55;
             Font fontSTK = new Font("Times New Roman", Font.BOLD, 12);
             combinedGraphics.setFont(fontSTK);
             combinedGraphics.setColor(new Color(30, 66, 126));
@@ -114,6 +114,13 @@ public class VietQR extends BaseService {
             int textXSTK = (borderImageNewWidth - fontMetricsSTK.stringWidth(getAccountPersonal())) / 2;
             int textYSTK = textYAmount;
             combinedGraphics.drawString(getAccountPersonal(), textXSTK, textYSTK);
+
+            combinedGraphics.setFont(fontSTK);
+            combinedGraphics.setColor(new Color(30, 66, 126));
+            FontMetrics fontMetricsTTK = combinedGraphics.getFontMetrics();
+            int textXTTK = (borderImageNewWidth - fontMetricsTTK.stringWidth(getNamePersonal())) / 2;
+            int textYTTK = textYAmount + 15;
+            combinedGraphics.drawString(getNamePersonal(),textXTTK, textYTTK);
 
             combinedGraphics.drawImage(qrCodeImage, qrCodeX, qrCodeY, null);
             combinedGraphics.drawImage(resizedLogo1, logoX1, logoY1, null);
@@ -247,7 +254,7 @@ public class VietQR extends BaseService {
 
             // Hiển thị STK
             FontMetrics fontMetricsAmount = combinedGraphics.getFontMetrics();
-            int textYAmount = qrCodeY + qrCodeSize + fontMetricsAmount.getHeight() + 60;
+            int textYAmount = qrCodeY + qrCodeSize + fontMetricsAmount.getHeight() + 55;
             Font fontSTK = new Font("Times New Roman", Font.BOLD, 12);
             combinedGraphics.setFont(fontSTK);
             combinedGraphics.setColor(new Color(30, 66, 126));
@@ -255,6 +262,14 @@ public class VietQR extends BaseService {
             int textXSTK = (borderImageNewWidth - fontMetricsSTK.stringWidth(getAccountCashier())) / 2;
             int textYSTK = textYAmount;
             combinedGraphics.drawString(getAccountCashier(), textXSTK, textYSTK);
+
+
+            combinedGraphics.setFont(fontSTK);
+            combinedGraphics.setColor(new Color(30, 66, 126));
+            FontMetrics fontMetricsTTK = combinedGraphics.getFontMetrics();
+            int textXTTK = (borderImageNewWidth - fontMetricsTTK.stringWidth(getNameCashier())) / 2;
+            int textYTTK = textYAmount + 15;
+            combinedGraphics.drawString(getNameCashier(),textXTTK, textYTTK);
 
 
             combinedGraphics.drawImage(qrCodeImage, qrCodeX, qrCodeY, null);
@@ -297,18 +312,44 @@ public class VietQR extends BaseService {
         if (getUserDetails().getTargetType() == ETargetType.CASHIER) {
             Long cashierId = getUserDetails().getCashier().getId();
             TblMerchantCashier merchantCashier = merchantCashierRepository.findById(cashierId).orElse(null);
-            String account = merchantCashier.getTblMerchantBranch().getCreditorAccount();
-            return "Số TK: " + account;
+            String data= merchantCashier.getTblMerchantBranch().getTblSettleBank().getBankReceiveCode() +merchantCashier.getTblMerchantBranch().getTblMerchantCorporate().getTblMasterMerchant().getMmCode()+
+                    merchantCashier.getTblMerchantBranch().getTblMerchantCorporate().getMerchantCode()+merchantCashier.getTblMerchantBranch().getBranchCode()+
+                    merchantCashier.getCashierCode();
+            return "Số TK: " + data;
         }
         return null;
     }
+
+
 
     public String getAccountPersonal() {
         if (getUserDetails().getTargetType() == ETargetType.PERSONAL) {
             Long merchantId = getUserDetails().getMerchantPersonal().getId();
             TblMerchantPersonal merchantPersonal = merchantPersonalRepository.findById(merchantId).orElse(null);
-            String account = merchantPersonal.getCreditorAccount();
-            return "Số TK: " + account;
+            String data = merchantPersonal.getTblSettleBank().getBankReceiveCode()+merchantPersonal.getTblMasterMerchant().getMmCode()+"000"+merchantPersonal.getMerchantCode() ;
+            return "Số TK: " + data;
+        }
+        return null;
+    }
+
+    public String getNameCashier() {
+        if (getUserDetails().getTargetType() == ETargetType.CASHIER) {
+            TblMerchantBranch branch = getUserDetails().getBranch();
+            TblMerchantCorporate merchantCorporate = getUserDetails().getMerchant();
+            String data=VNCharacterUtils.removeAccent(merchantCorporate.getName() +" - "+branch.getName()) ;
+            return "Tên Tài Khoản: " + data;
+        }
+        return null;
+    }
+
+
+
+    public String getNamePersonal() {
+        if (getUserDetails().getTargetType() == ETargetType.PERSONAL) {
+            TblMasterMerchant masterMerchant = getUserDetails().getMasterMerchant();
+            TblMerchantPersonal merchantPersonal = getUserDetails().getMerchantPersonal();
+            String data =VNCharacterUtils.removeAccent(masterMerchant.getName() + " - " + merchantPersonal.getName());
+            return "Tên Tài Khoản: " + data;
         }
         return null;
     }

@@ -42,10 +42,10 @@ public class MerchantCashierService extends BaseService {
 
         TblMerchantBranch branch = getUserDetails().getBranch();
         if (getUserDetails().getTargetType().equals(ETargetType.BRANCH)) {
-            Page<TblMerchantCashier> dbResult = merchantCashierRepository.search(paging, cashierCode, status, branch.getId(), null);
+            Page<TblMerchantCashier> dbResult = merchantCashierRepository.search(paging, cashierCode, status, branch, null);
             return ResponseEntity.ok(dbResult.map(entity -> fromEntity(entity)));
         } else if (getUserDetails().getTargetType().equals(ETargetType.CASHIER)){
-            Page<TblMerchantCashier> dbResult = merchantCashierRepository.search(paging, cashierCode, status, branch.getId(), getTargetId());
+            Page<TblMerchantCashier> dbResult = merchantCashierRepository.search(paging, cashierCode, status, branch, getTargetId());
             return ResponseEntity.ok(dbResult.map(entity -> fromEntity(entity)));
         }
         return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(new MessageResponse("Bạn không có quyền truy cập danh sách này"));
@@ -62,7 +62,7 @@ public class MerchantCashierService extends BaseService {
             if (merchantCashierRepository.existsByCashierCodeAndTblMerchantBranch(input.getCashierCode(), branch)){
                 return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(new MessageResponse("Mã Code đã tồn tại"));
             }
-            tblMerchantCashier.setCashierCode(input.getCashierCode());
+            tblMerchantCashier.setCashierCode(input.getCashierCode().toUpperCase());
             tblMerchantCashier.setTblMerchantBranch(branch);
             tblMerchantCashier.setStatus(MerchantStatus.APPROVED);
             tblMerchantCashier.setDateCreated(new Date());
@@ -113,7 +113,7 @@ public class MerchantCashierService extends BaseService {
     public ResponseEntity<?> list(){
         TblMerchantBranch merchantBranch = getUserDetails().getBranch();
         if (merchantBranch != null){
-            List<TblMerchantCashier> list = merchantCashierRepository.list(merchantBranch.getId());
+            List<TblMerchantCashier> list = merchantCashierRepository.list(merchantBranch);
             return ResponseEntity.ok(list);
         }
         return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(new MessageResponse("Không tồn tại Master Merchant này"));

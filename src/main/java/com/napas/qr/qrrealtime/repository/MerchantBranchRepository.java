@@ -1,6 +1,7 @@
 package com.napas.qr.qrrealtime.repository;
 
 import com.napas.qr.qrrealtime.define.MerchantStatus;
+import com.napas.qr.qrrealtime.entity.TblMasterMerchant;
 import com.napas.qr.qrrealtime.entity.TblMerchantBranch;
 import com.napas.qr.qrrealtime.entity.TblMerchantCorporate;
 import org.springframework.data.domain.Page;
@@ -23,22 +24,22 @@ public interface MerchantBranchRepository extends JpaRepository<TblMerchantBranc
             " (T.name like %:name% or :name is null) " +
             " AND (T.status= :status or :status is null) " +
             " AND(T.branchCode like %:branchCode% or :branchCode is null)" +
-            " AND(T.tblMerchantCorporate.id= :merchantId or :merchantId is null)" +
+            " AND(T.tblMerchantCorporate= :tblMerchantCorporate or :tblMerchantCorporate is null)" +
             " AND(T.id= :targetId or :targetId is null)" +
-            " AND(T.tblMerchantCorporate.tblMasterMerchant.id = :MasterMerchantId or :MasterMerchantId is null )" +
+            " AND(T.tblMerchantCorporate.tblMasterMerchant = :tblMasterMerchant or :tblMasterMerchant is null )" +
             " AND(T.status<>'DELETED') ")
     Page<TblMerchantBranch> search(Pageable pageable,
                                    @Param("name") String name,
                                    @Param("status") MerchantStatus status,
                                    @Param("branchCode") String branchCode,
-                                   @Param("merchantId") Long merchantId,
+                                   @Param("tblMerchantCorporate") TblMerchantCorporate tblMerchantCorporate,
                                    @Param("targetId") Long targetId,
-                                   @Param("MasterMerchantId") Long MasterMerchantId);
+                                   @Param("tblMasterMerchant") TblMasterMerchant tblMasterMerchant);
 
     @Query("SELECT T FROM TblMerchantBranch T WHERE " +
-            " (T.tblMerchantCorporate.id= :merchantId or :merchantId is null)" +
+            " (T.tblMerchantCorporate= :tblMerchantCorporate or :tblMerchantCorporate is null)" +
             " AND(T.id= :targetId or :targetId is null)" +
             " AND(T.status<>'DELETED') ")
-    List<TblMerchantBranch> get(@Param("merchantId") Long merchantId,
+    List<TblMerchantBranch> get(@Param("tblMerchantCorporate") TblMerchantCorporate tblMerchantCorporate,
                                 @Param("targetId") Long targetId);
 }

@@ -1,6 +1,5 @@
 package com.napas.qr.qrrealtime.models;
 
-import com.napas.qr.qrrealtime.define.MerchantStatus;
 import com.napas.qr.qrrealtime.define.PaymentAcceptStatus;
 import lombok.Data;
 

@@ -22,22 +22,22 @@ public interface MerchantCorporateRepository extends JpaRepository<TblMerchantCo
             " (T.name like %:name% or :name is null) " +
             " AND (T.status= :status or :status is null) " +
             " AND(T.merchantCode like %:merchantCode% or :merchantCode is null)" +
-            " AND(T.tblMasterMerchant.id= :masterMerchantId or :masterMerchantId is null)" +
+            " AND(T.tblMasterMerchant= :tblMasterMerchant or :tblMasterMerchant is null)" +
             " AND(T.id= :targetId or :targetId is null )" +
             " AND(T.status<>'DELETED') ")
     Page<TblMerchantCorporate> search(Pageable pageable,
                                       @Param("name") String name,
                                       @Param("status") MerchantStatus status,
                                       @Param("merchantCode") String merchantCode,
-                                      @Param("masterMerchantId") Long masterMerchantId,
+                                      @Param("tblMasterMerchant") TblMasterMerchant tblMasterMerchant,
                                       @Param("targetId") Long targetId);
 
 
     @Query("SELECT T FROM TblMerchantCorporate T WHERE " +
-            " (T.tblMasterMerchant.id= :masterMerchantId or :masterMerchantId is null)" +
+            " (T.tblMasterMerchant= :tblMasterMerchant or :tblMasterMerchant is null)" +
             " AND(T.id= :targetId or :targetId is null)" +
             " AND(T.status<>'DELETED') ")
     List<TblMerchantCorporate> get(
-            @Param("masterMerchantId") Long masterMerchantId,
+            @Param("tblMasterMerchant") TblMasterMerchant tblMasterMerchant,
             @Param("targetId") Long targetId);
 }

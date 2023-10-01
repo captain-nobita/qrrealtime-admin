@@ -22,18 +22,18 @@ public interface MerchantCashierRepository extends JpaRepository<TblMerchantCash
     @Query("SELECT T FROM TblMerchantCashier T WHERE " +
             " (T.cashierCode like %:cashierCode% or :cashierCode is null) " +
             " AND (T.status= :status or :status is null) " +
-            " AND(T.tblMerchantBranch.id= :branchId or :branchId is null)" +
+            " AND(T.tblMerchantBranch= :tblMerchantBranch or :tblMerchantBranch is null)" +
             " AND(T.id = :targetId or :targetId is null )" +
             " AND(T.status<>'DELETED') ")
     Page<TblMerchantCashier> search(Pageable pageable,
                                     @Param("cashierCode") String cashierCode,
                                     @Param("status") MerchantStatus status,
-                                    @Param("branchId") Long branchId,
+                                    @Param("tblMerchantBranch") TblMerchantBranch tblMerchantBranch,
                                     @Param("targetId") Long targetId);
 
     @Query("SELECT T FROM TblMerchantCashier T WHERE " +
-            " (T.tblMerchantBranch.id= :branchId or :branchId is null)" +
+            " (T.tblMerchantBranch= :tblMerchantBranch or :tblMerchantBranch is null)" +
             " AND(T.status<>'DELETED') ")
     List<TblMerchantCashier> list(
-            @Param("branchId") Long branchId);
+            @Param("tblMerchantBranch") TblMerchantBranch tblMerchantBranch);
 }

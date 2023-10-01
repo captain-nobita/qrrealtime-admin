@@ -1,10 +1,8 @@
 package com.napas.qr.qrrealtime.controllers;
 
 import com.napas.qr.qrrealtime.define.MerchantStatus;
-import com.napas.qr.qrrealtime.entity.TblMerchantPersonal;
 import com.napas.qr.qrrealtime.models.CreateMerchantPersonalDTO;
-import com.napas.qr.qrrealtime.models.CreatedMerchantBranchDTO;
-import com.napas.qr.qrrealtime.models.TblMerchantPersonalDTO;
+import com.napas.qr.qrrealtime.models.UpdateAccountBankDTO;
 import com.napas.qr.qrrealtime.service.MerchantPersonalService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Pageable;
@@ -12,17 +10,9 @@ import org.springframework.data.domain.Sort;
 import org.springframework.data.web.PageableDefault;
 import org.springframework.data.web.SortDefault;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
 
 import javax.servlet.http.HttpServletRequest;
-import javax.validation.Valid;
-import java.io.UnsupportedEncodingException;
-import java.security.InvalidKeyException;
-import java.security.NoSuchAlgorithmException;
-import java.security.Principal;
-import java.security.SignatureException;
-import java.util.List;
 
 @RestController
 @RequestMapping(value = "/mngweb/api/merchantPersonal", produces = "application/json")
@@ -47,9 +37,9 @@ public class MerchantPersonalController {
         return merchantPersonalService.post(input);
     }
 
-    @PutMapping("/{id}")
-    public ResponseEntity<?> put(HttpServletRequest request,@PathVariable Long id, @RequestBody CreateMerchantPersonalDTO input){
-        return merchantPersonalService.put(id, input);
+    @PutMapping()
+    public ResponseEntity<?> put(@RequestBody CreateMerchantPersonalDTO input){
+        return merchantPersonalService.put(input);
     }
     @DeleteMapping("/{id}")
     public ResponseEntity<?> delete(HttpServletRequest request,@PathVariable Long id) {
@@ -71,5 +61,10 @@ public class MerchantPersonalController {
     @PostMapping("/checkCode")
     public ResponseEntity<?>checkCode(@RequestBody CreateMerchantPersonalDTO input){
         return merchantPersonalService.checkCode(input);
+    }
+
+    @PutMapping("/updateAccountBank")
+    public ResponseEntity<?>updateAccountBank(@RequestBody UpdateAccountBankDTO input){
+        return merchantPersonalService.updateAccount(input);
     }
 }

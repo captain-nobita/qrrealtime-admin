@@ -6,4 +6,6 @@ import org.springframework.stereotype.Repository;
 
 @Repository
 public interface NapasBankRepository extends JpaRepository<TblNapasBank, Long> {
+
+    TblNapasBank findByBankId(String bankId);
 }
