@@ -93,8 +93,9 @@ public class TblMerchantPersonal implements Serializable {
     @ManyToOne(optional = false)
     @JsonIgnore
     private TblMasterMerchant tblMasterMerchant;
+
     @JoinColumn(name = "SETTLE_BANK_ID", referencedColumnName = "ID")
-    @ManyToOne(optional = false)
+    @ManyToOne(optional = true)
     @JsonIgnore
     private TblSettleBank tblSettleBank;
 

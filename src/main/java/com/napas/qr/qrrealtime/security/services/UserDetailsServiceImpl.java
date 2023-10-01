@@ -69,6 +69,7 @@ public class UserDetailsServiceImpl implements UserDetailsService {
                 masterMerchant = merchantCorporate.getTblMasterMerchant();
                 break;
             case PERSONAL:
+
                 personal = merchantPersonalDAO.findById(user.getTargetId())
                         .orElseThrow(() -> new UsernameNotFoundException("User Not Found with username: " + username));
                 masterMerchant = personal.getTblMasterMerchant();
