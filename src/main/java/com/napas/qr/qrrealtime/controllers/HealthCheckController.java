@@ -6,7 +6,7 @@ import org.springframework.web.bind.annotation.*;
 
 
 @RestController
-@RequestMapping("/mngweb/merchantweb/api/healthcheck")
+@RequestMapping("/mngweb/api/healthcheck")
 public class HealthCheckController {
 
     @GetMapping()

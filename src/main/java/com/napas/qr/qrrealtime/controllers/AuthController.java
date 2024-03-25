@@ -11,6 +11,7 @@ import com.napas.qr.qrrealtime.entity.*;
 import com.napas.qr.qrrealtime.payload.response.MessageResponse;
 import com.napas.qr.qrrealtime.repository.UserRepository;
 import com.napas.qr.qrrealtime.security.services.UserDetailsImpl;
+import io.swagger.v3.oas.annotations.Operation;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -34,7 +35,7 @@ import org.springframework.security.core.context.SecurityContextHolder;
 
 @CrossOrigin(origins = "*", maxAge = 3600)
 @RestController
-@RequestMapping(value = "/mngweb/api/auth",produces = "application/json")
+@RequestMapping(value = "/api/auth",produces = "application/json")
 public class AuthController {
 
     private Logger logger = LoggerFactory.getLogger(this.getClass().getName());
@@ -48,6 +49,7 @@ public class AuthController {
     @Autowired
     private UserRepository userRepository;
 
+    @Operation(summary = "Login", description = "Đăng nhập", tags = {"Auth"})
     @PostMapping("/signin")
     public ResponseEntity<?> authenticateUser(HttpServletRequest request,
                                               @Valid @RequestBody LoginRequest loginRequest) {

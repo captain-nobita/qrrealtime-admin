@@ -2,6 +2,7 @@ package com.napas.qr.qrrealtime.controllers;
 
 import com.napas.qr.qrrealtime.models.DistrictDTO;
 import com.napas.qr.qrrealtime.service.DistrictService;
+import io.swagger.v3.oas.annotations.Operation;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -13,12 +14,13 @@ import javax.servlet.http.HttpServletRequest;
 import java.util.List;
 
 @RestController
-@RequestMapping(value = "/mngweb/api/district", produces = "application/json")
+@RequestMapping(value = "/api/district", produces = "application/json")
 public class DistrictController {
 
     @Autowired
     private DistrictService districtService;
 
+    @Operation(summary = "Search", description = "Lấy danh sách các quận huyện theo ID tỉnh/Thành phố", tags = {"district"})
     @GetMapping("/search")
     public List<DistrictDTO>search(HttpServletRequest request,
                                    @RequestParam(name = "provId", required = false) Long provId){

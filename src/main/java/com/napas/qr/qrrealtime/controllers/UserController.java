@@ -6,7 +6,6 @@
 package com.napas.qr.qrrealtime.controllers;
 
 import com.napas.qr.qrrealtime.define.MerchantStatus;
-import com.napas.qr.qrrealtime.models.CreateMerchantPersonalDTO;
 import com.napas.qr.qrrealtime.models.CreatedUserDTO;
 import com.napas.qr.qrrealtime.models.UserDetail;
 import com.napas.qr.qrrealtime.service.UserService;
@@ -30,7 +29,7 @@ import javax.servlet.http.HttpServletRequest;
  */
 @CrossOrigin(origins = "*", maxAge = 3600)
 @RestController
-@RequestMapping(value = "/mngweb/api/user", produces = "application/json")
+@RequestMapping(value = "/api/user", produces = "application/json")
 public class UserController {
 
     private Logger logger = LoggerFactory.getLogger(this.getClass().getName());

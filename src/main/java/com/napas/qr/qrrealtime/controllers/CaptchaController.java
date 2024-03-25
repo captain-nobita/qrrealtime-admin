@@ -3,6 +3,7 @@ package com.napas.qr.qrrealtime.controllers;
 import cn.apiclub.captcha.Captcha;
 import cn.apiclub.captcha.backgrounds.GradiatedBackgroundProducer;
 import cn.apiclub.captcha.noise.CurvedLineNoiseProducer;
+import io.swagger.v3.oas.annotations.Operation;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -16,11 +17,12 @@ import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 
 @RestController
-@RequestMapping(value = "/mngweb/api/portal/captcha",produces = "application/json")
+@RequestMapping(value = "/api/portal/captcha",produces = "application/json")
 @PreAuthorize("permitAll()")
 public class CaptchaController {
     public static String SessionCaptchaAnswer = "captchaAnswer";
 
+    @Operation(summary = "Captcha", description = "Captcha", tags = {"Captcha"})
     @PostMapping
     public ResponseEntity<byte[]> generateCaptcha(HttpSession session) throws IOException {
         var captcha = new Captcha.Builder(240,70)

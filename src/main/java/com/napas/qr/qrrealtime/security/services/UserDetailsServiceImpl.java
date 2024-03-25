@@ -35,7 +35,7 @@ public class UserDetailsServiceImpl implements UserDetailsService {
     @Transactional
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
         TblOrgUser user = userRepository.findByUsername(username)
-                .orElseThrow(() -> new UsernameNotFoundException("User Not Found with username: " + username));
+               .orElseThrow(() -> new UsernameNotFoundException("User Not Found with username: " + username));
 
         TblMasterMerchant masterMerchant = null;
         TblMerchantCorporate merchantCorporate = null;
