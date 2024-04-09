@@ -5,6 +5,7 @@
  */
 package com.napas.qr.qrrealtime.common;
 
+import lombok.Data;
 import org.springframework.context.annotation.Configuration;
 
 /**
@@ -12,5 +13,8 @@ import org.springframework.context.annotation.Configuration;
  * @author huynx
  */
 @Configuration
+@Data
 public class AppConfig {
+    private String napasKeyId = "napas";
+    private String merchantAgentId = "971133";
 }
