@@ -105,10 +105,13 @@ public class TblMerchantPersonal implements Serializable {
     @Column(name = "EMAIL_ADDRESS")
     private String emailAddress;
 
+    @Transient
+    private String merchantAlias;
+
     public TblMerchantPersonal() {
     }
 
-    public TblMerchantPersonal(Long id, String merchantCode, MerchantStatus status, String name, String phoneNumber, String addressLine, Date dateCreated, Date dateModified, long createdByUser, Long modifiedByUser, String creditorAccount, PaymentAcceptStatus paymentAcceptanceStatus, TblDistrict tblDistrict, TblMasterMerchant tblMasterMerchant, TblSettleBank tblSettleBank, String ownerName, String emailAddress) {
+    public TblMerchantPersonal(Long id, String merchantCode, MerchantStatus status, String name, String phoneNumber, String addressLine, Date dateCreated, Date dateModified, long createdByUser, Long modifiedByUser, String creditorAccount, PaymentAcceptStatus paymentAcceptanceStatus, TblDistrict tblDistrict, TblMasterMerchant tblMasterMerchant, TblSettleBank tblSettleBank, String ownerName, String emailAddress, String merchantAlias) {
         this.id = id;
         this.merchantCode = merchantCode;
         this.status = status;
@@ -126,6 +129,15 @@ public class TblMerchantPersonal implements Serializable {
         this.tblSettleBank = tblSettleBank;
         this.ownerName = ownerName;
         this.emailAddress = emailAddress;
+        this.merchantAlias = merchantAlias;
+    }
+
+    public String getMerchantAlias() {
+        return merchantAlias;
+    }
+
+    public void setMerchantAlias(String merchantAlias) {
+        this.merchantAlias = merchantAlias;
     }
 
     public Long getId() {

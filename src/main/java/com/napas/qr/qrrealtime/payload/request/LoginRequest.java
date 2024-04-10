@@ -10,16 +10,16 @@ public class LoginRequest {
     @NotBlank
     private String password;
 
-    @NotBlank(message = "Captcha bị thiếu")
-    private String captcha;
+//    @NotBlank(message = "Captcha bị thiếu")
+//    private String captcha;
 
-    public String getCaptcha() {
-        return captcha;
-    }
-
-    public void setCaptcha(String captcha) {
-        this.captcha = captcha;
-    }
+//    public String getCaptcha() {
+//        return captcha;
+//    }
+//
+//    public void setCaptcha(String captcha) {
+//        this.captcha = captcha;
+//    }
 
     public String getUsername() {
         return username;

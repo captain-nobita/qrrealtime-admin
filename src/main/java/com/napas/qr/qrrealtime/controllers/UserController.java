@@ -9,6 +9,7 @@ import com.napas.qr.qrrealtime.define.MerchantStatus;
 import com.napas.qr.qrrealtime.models.CreatedUserDTO;
 import com.napas.qr.qrrealtime.models.UserDetail;
 import com.napas.qr.qrrealtime.service.UserService;
+import io.swagger.v3.oas.annotations.Operation;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.web.PageableDefault;
@@ -67,5 +68,10 @@ public class UserController {
         return userService.delete(id);
     }
 
+    @Operation(summary = "CheckUser", description = "Kiểm tra xem username này có tồn tại trên hệ thống QR Merchant", tags = {"user"})
+    @GetMapping("/checkUser")
+    public ResponseEntity<?> checkUser(@RequestParam(name = "username") String username){
+        return userService.checkUser(username);
+    }
 
 }

@@ -39,8 +39,6 @@ public class MerchantPersonalService extends BaseService {
     @Value("${redirectPvCombank}")
     private String redirectPvCombank;
 
-
-
     @Autowired
     private ModelMapper modelMapper;
 
@@ -52,6 +50,8 @@ public class MerchantPersonalService extends BaseService {
         dto.setDistrictName(entity.getTblDistrict().getDistrictName());
         dto.setProvName(entity.getTblDistrict().getTblProvince().getProvName());
         dto.setProvId(entity.getTblDistrict().getTblProvince().getId());
+        dto.setMerchantAlias(entity.getMerchantAlias());
+        dto.setPaymentAcceptStatus(entity.getPaymentAcceptanceStatus());
         if (entity.getTblSettleBank() != null){
             dto.setSettleBankId(entity.getTblSettleBank().getId());
         }
@@ -90,6 +90,12 @@ public class MerchantPersonalService extends BaseService {
             }
             TblDistrict district = districtRepository.findById(input.getDistrictId()).orElse(null);
 
+            if (input.getSettleBankId() != null){
+                TblSettleBank settleBank = settleBankRepository.findById(input.getSettleBankId()).orElse(null);
+                tblMerchantPersonal.setTblSettleBank(settleBank);
+            }
+            tblMerchantPersonal.setCreditorAccount(input.getCreditorAccount());
+            tblMerchantPersonal.setEmailAddress(input.getEmailAddress());
             tblMerchantPersonal.setTblMasterMerchant(masterMerchant);
             tblMerchantPersonal.setTblDistrict(district);
             tblMerchantPersonal.setAddressLine(input.getAddressLine());
@@ -101,6 +107,9 @@ public class MerchantPersonalService extends BaseService {
             tblMerchantPersonal.setTblMasterMerchant(masterMerchant);
             tblMerchantPersonal.setPaymentAcceptanceStatus(PaymentAcceptStatus.READY);
 
+            String data = tblMerchantPersonal.getTblSettleBank().getBankReceiveCode() + tblMerchantPersonal.getTblMasterMerchant().getMmCode() + "000" + tblMerchantPersonal.getMerchantCode();
+
+            tblMerchantPersonal.setMerchantAlias(data);
             TblMerchantPersonal savedData = merchantPersonalRepository.save(tblMerchantPersonal);
             return ResponseEntity.ok(fromEntity(savedData));
         } else {

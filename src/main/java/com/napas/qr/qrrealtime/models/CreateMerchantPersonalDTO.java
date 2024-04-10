@@ -1,6 +1,5 @@
 package com.napas.qr.qrrealtime.models;
 
-import com.napas.qr.qrrealtime.define.PaymentAcceptStatus;
 import lombok.Data;
 
 import java.util.Date;
@@ -30,8 +29,6 @@ public class CreateMerchantPersonalDTO {
     private Long settleBankId;
 
     private String creditorAccount;
-
-    private PaymentAcceptStatus paymentAcceptStatus;
 
     private String ownerName;
 

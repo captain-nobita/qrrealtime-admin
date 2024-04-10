@@ -22,6 +22,7 @@ import com.napas.qr.qrrealtime.payload.response.MessageResponse;
 import com.napas.qr.qrrealtime.repository.*;
 import com.napas.qr.qrrealtime.security.jwt.JwtUtils;
 import com.napas.qr.qrrealtime.security.services.UserDetailsImpl;
+import org.hibernate.loader.custom.NonUniqueDiscoveredSqlAliasException;
 import org.modelmapper.ModelMapper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -260,5 +261,15 @@ public class UserService extends BaseService {
 
             }
         }  return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(new MessageResponse("Bạn chưa có quyền xóa hệ thống này"));
+    }
+
+    public ResponseEntity<?> checkUser(String username){
+
+        TblOrgUser tblOrgUser = userRepository.findByUsername(username).orElse(null);
+
+        if (tblOrgUser != null){
+            return ResponseEntity.ok(new MessageResponse("Có tồn tại username này trên hệ thống QR Merchant"));
+        }
+        else return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(new MessageResponse("Không tồn tại username này trên hệ thống QR Merchant"));
     }
 }

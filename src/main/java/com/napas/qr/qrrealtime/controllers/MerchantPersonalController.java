@@ -15,7 +15,7 @@ import org.springframework.web.bind.annotation.*;
 import javax.servlet.http.HttpServletRequest;
 
 @RestController
-@RequestMapping(value = "/mngweb/api/merchantPersonal", produces = "application/json")
+@RequestMapping(value = "/api/merchantPersonal", produces = "application/json")
 public class MerchantPersonalController {
 
     @Autowired

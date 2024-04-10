@@ -51,4 +51,6 @@ public class TblMerchantPersonalDTO {
     private String provName;
 
     private String DistrictName;
+
+    private String merchantAlias;
 }
