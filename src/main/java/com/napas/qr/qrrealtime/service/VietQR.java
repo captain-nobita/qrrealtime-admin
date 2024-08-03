@@ -37,11 +37,13 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.HashMap;
 import java.util.Map;
+import lombok.extern.slf4j.Slf4j;
 
 /**
  * @author huynx
  */
 @Service
+@Slf4j
 public class VietQR extends BaseService {
 
     private static final String outputDirectoryPath = "./report/image/outputImages";
@@ -309,6 +311,7 @@ public class VietQR extends BaseService {
                     merchantCashier.getTblMerchantBranch().getTblMerchantCorporate().getMerchantCode() + merchantCashier.getTblMerchantBranch().getBranchCode() +
                     merchantCashier.getCashierCode();
             String qrCodeData = getVietQrNotAmount(bankId, data);
+            log.info("Bat dau sinh qrcode cho alias:{}", data);
             return qrCodeData;
         } else {
             TblMerchantCashier tblMerchantCashier = merchantCashierRepository.findById(cashierId).orElse(null);
@@ -316,6 +319,7 @@ public class VietQR extends BaseService {
                     tblMerchantCashier.getTblMerchantBranch().getTblMerchantCorporate().getMerchantCode() + tblMerchantCashier.getTblMerchantBranch().getBranchCode() +
                     tblMerchantCashier.getCashierCode();
             String qrCodeData = getVietQrNotAmount(bankId, data);
+            log.info("Bat dau sinh qrcode cho alias:{}", data);
             return qrCodeData;
         }
     }

@@ -24,10 +24,7 @@ public class CaptchaController {
     @PostMapping
     public ResponseEntity<byte[]> generateCaptcha(HttpSession session) throws IOException {
         var captcha = new Captcha.Builder(240,70)
-                .addBackground(new GradiatedBackgroundProducer())
                 .addText()
-                .addNoise(new CurvedLineNoiseProducer())
-                .addNoise(new CurvedLineNoiseProducer())
                 .build();
         var byteArrayOutputStream = new ByteArrayOutputStream();
         ImageIO.write(captcha.getImage(), "png",byteArrayOutputStream);
