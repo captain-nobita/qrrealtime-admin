@@ -307,7 +307,7 @@ public class VietQR extends BaseService {
     public String dataQrCashier(Long cashierId) {
         if (getUserDetails().getTargetType().equals(ETargetType.CASHIER)) {
             TblMerchantCashier merchantCashier = getUserDetails().getCashier();
-            String data = merchantCashier.getTblMerchantBranch().getTblSettleBank().getBankReceiveCode() + merchantCashier.getTblMerchantBranch().getTblMerchantCorporate().getTblMasterMerchant().getMmCode() +
+            String data = "NP" + merchantCashier.getTblMerchantBranch().getTblMerchantCorporate().getTblMasterMerchant().getMmCode() +
                     merchantCashier.getTblMerchantBranch().getTblMerchantCorporate().getMerchantCode() + merchantCashier.getTblMerchantBranch().getBranchCode() +
                     merchantCashier.getCashierCode();
             String qrCodeData = getVietQrNotAmount(bankId, data);

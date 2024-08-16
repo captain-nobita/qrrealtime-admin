@@ -34,7 +34,13 @@ public class MerchantCashierService extends BaseService {
     private MerchantCashierDTO fromEntity(TblMerchantCashier entity) {
         MerchantCashierDTO dto = modelMapper.map(entity, MerchantCashierDTO.class);
         dto.setBranchName(entity.getTblMerchantBranch().getName());
-        dto.setMerchantName(entity.getTblMerchantBranch().getTblMerchantCorporate().getName());
+        
+        
+        String alias = "NP" + entity.getTblMerchantBranch().getTblMerchantCorporate().getTblMasterMerchant().getMmCode() +
+                    entity.getTblMerchantBranch().getTblMerchantCorporate().getMerchantCode() + entity.getTblMerchantBranch().getBranchCode() +
+                    entity.getCashierCode();
+        
+        dto.setMerchantName(entity.getTblMerchantBranch().getTblMerchantCorporate().getName() + " " + alias);
         return dto;
     }
 
